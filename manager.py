@@ -1,14 +1,14 @@
 import argparse
 
 
-def manage_report():
+def run_report():
     # ...
     print('will generate report')
     # ...
     return
 
 
-def manage_daily_db_update():
+def run_daily_db_update():
     # ...
     print('will update daily db')
     # ...
@@ -16,15 +16,22 @@ def manage_daily_db_update():
 
 
 if __name__ == '__main__':
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--report', action='store_true', help='run report script')  # the `store_true` action stores `True` if the argument is present, and `False` otherwise
+    parser.add_argument('--report', action='store_true', help='run report script')
     parser.add_argument('--update', action='store_true', help='run update script')
+    parser.add_argument('--both', action='store_true', help='run both report and update scripts')
     args = parser.parse_args()
 
+    if not args.report and not args.update and not args.both:
+        print( 'Please provide either the --update, --report, or --both argument.' )
+        exit(1)
+
     if args.report:
-        manage_report()
+        run_report()
     elif args.update:
-        manage_daily_db_update()
-    else:
-        manage_report()
-        manage_daily_db_update()
+        run_daily_db_update()
+    elif args.both:
+        run_report()
+        run_daily_db_update()
+    
