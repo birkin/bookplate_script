@@ -1,4 +1,4 @@
-# Goal
+## Goal
 
 High-level goal:
 - Bookplates show up in BruKnow after person updates MARC record
@@ -26,5 +26,17 @@ Goal of "ongoing" script...
 Brainstorming coolness...
 - have ongoing script update a google-sheet "report"
 - on a monthly basis summarize the spreadsheet in an email to folk
+
+---
+
+## Rust code
+
+The [rust] code is a side-project, done outside of work, to continue learning the language and compare performance in a real-world project.
+
+[rust]: <https://www.rust-lang.org/>
+
+Principles for development:
+- Python functionality will be implemented first.
+- The rust code won't have core functionality that the python version doesn't have.
 
 ---
