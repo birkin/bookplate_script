@@ -1,8 +1,11 @@
-import argparse
+import argparse, os
 from dotenv import load_dotenv, find_dotenv
 
 
 load_dotenv( find_dotenv(raise_error_if_not_found=True) )
+
+MARC_DAILY_DIR=os.environ['MARC_DAILY_DIR']
+MARC_FULL_DIR=os.environ['MARC_FULL_DIR']
 
 
 def run_report():
