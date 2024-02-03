@@ -51,6 +51,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bookplate_script_runner"
+version = "0.1.0"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "clap"
 version = "4.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -118,13 +125,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "291ec9ab5efd934aaf503a6466c5d5251535d108ee747472c3977cc5acc868ef"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "rust_manager"
-version = "0.1.0"
-dependencies = [
- "clap",
 ]
 
 [[package]]
