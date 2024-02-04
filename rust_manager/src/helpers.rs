@@ -64,3 +64,17 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
 
     unsorted_files // Vec<PathBuf>
 }
+
+// fn extract_tar_gz(archive_path: &str, output_path: &str) -> Result<()> {
+//     // Open the .tar.gz file
+//     let tar_gz = File::open(archive_path)?;
+//     let tar = GzDecoder::new(tar_gz);
+
+//     // Create a new archive object
+//     let mut archive = Archive::new(tar);
+
+//     // Unpack the archive's contents into the output directory
+//     archive.unpack(output_path)?;
+
+//     Ok(())
+// }
