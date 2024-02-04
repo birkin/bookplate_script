@@ -42,7 +42,6 @@ macro_rules! log_info {
     };
 }
 
-
 // #[macro_export]
 // macro_rules! log_debug {
 //     ($($arg:tt)*) => {
@@ -65,7 +64,6 @@ impl log::Log for SimpleLogger {
     fn enabled(&self, metadata: &Metadata) -> bool {
         metadata.level() <= Level::Debug
     }
-
 
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
