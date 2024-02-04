@@ -1,5 +1,30 @@
-// use std::path::PathBuf;
-// use regex::Regex;
+
+pub fn grab_direcory_files(directory: &str) -> Vec<std::path::PathBuf> {
+    /*  Some notes...
+    - ```std::fs::read_dir(marc_full_source_files_dir)```
+            Returns a Result, which means an Ok or an Err.
+            The order of directory entries not 'sorted' -- it's generally optimized for the filesystem's (e.g., NTFS, FAT, ext4, etc.) performance and organization,
+            rather than for human-readable sorting or any specific application-level need.
+    - ```let entry = entry.expect("Error reading entry");```
+            This is a way to handle the Result returned by read_dir.
+            If the Result is an Err, the program will panic with the message "Error reading entry".
+            If the Result is an Ok, the program will continue with the value of the Ok.
+    - This could be one long dot-chained line, like:
+            std::fs::read_dir(directory)
+            .expect("Unable to read directory")
+            .map(|res| res.map(|e| e.path()))
+            .collect::<Result<Vec<_>, std::io::Error>>()
+            .expect("Unable to collect files")
+        ...but that hurts my brain.
+    */
+    let entries = std::fs::read_dir(directory).expect("Unable to read directory");
+    let mut paths = Vec::new();
+    for entry in entries {
+        let entry = entry.expect("Error reading entry");
+        paths.push(entry.path());
+    }
+    return paths;
+}
 
 pub fn sort_files(unsorted_files: Vec<std::path::PathBuf>) -> Vec<std::path::PathBuf> {
     let mut sorted_files: Vec<std::path::PathBuf> = unsorted_files;

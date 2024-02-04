@@ -30,20 +30,18 @@ struct Args {
 
 // - manages report-run ---------------------------------------------
 fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
+    log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir); // temp; to eliminate cargo warning
+
     // list the .tar.gz files ---------------------------------------
     let unsorted_compressed_marc_files: Vec<std::path::PathBuf> =
-        std::fs::read_dir(marc_full_source_files_dir)
-            .expect("Unable to read directory")
-            .map(|res| res.map(|e| e.path()))
-            .collect::<Result<Vec<_>, std::io::Error>>()
-            .expect("Unable to collect files");
+        helpers::grab_direcory_files(&marc_full_source_files_dir);
     log_debug!(
         "first 3 unsorted_compressed_marc_files: {:?}",
         &unsorted_compressed_marc_files[0..3]
     );
 
     // get a sorted list --------------------------------------------
-    let mut compressed_marc_files: Vec<std::path::PathBuf> =
+    let compressed_marc_files: Vec<std::path::PathBuf> =
         helpers::sort_files(unsorted_compressed_marc_files);
     log_debug!(
         "first 3 sorted_compressed_marc_files: {:?}",
