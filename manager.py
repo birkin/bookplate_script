@@ -32,8 +32,11 @@ log.debug( 'logging working' )
 
 def run_report():
     ## list the .tar.gz files ---------------------------------------
-    compressed_marc_files = [ f for f in MARC_FULL_DIR_SOURCE.glob('*.tar.gz') ]  # creates list of pathlib objects
-    log.debug( f'found ``{len(compressed_marc_files)}`` marc files in ``{MARC_FULL_DIR_SOURCE}``' )
+    unsorted_compressed_marc_files = [ f for f in MARC_FULL_DIR_SOURCE.glob('*.tar.gz') ]  # creates list of pathlib objects
+    # compressed_marc_files = sorted( unsorted_compressed_marc_files )
+    compressed_marc_files = helpers.sort_unpadded_filenames( unsorted_compressed_marc_files )
+    log.info( f'found ``{len(compressed_marc_files)}`` marc files in ``{MARC_FULL_DIR_SOURCE}``' )
+    # log.debug( f'compressed_marc_files, ``{pprint.pformat(compressed_marc_files)}``')
 
     for compressed_f_pathobj in compressed_marc_files:
         ## get output path ------------------------------------------
