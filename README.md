@@ -40,3 +40,7 @@ Principles for development:
 - The rust code won't have core functionality that the python version doesn't have.
 
 ---
+
+## Notes
+
+- [pymarc documentation](https://gitlab.com/pymarc/pymarc)

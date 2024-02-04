@@ -1,14 +1,33 @@
-import argparse, os
+import argparse, logging, os
+from pathlib import Path
+
 from dotenv import load_dotenv, find_dotenv
 
 
+## handle envars ----------------------------------------------------
 load_dotenv( find_dotenv(raise_error_if_not_found=True) )
+LOG_LEVEL = os.environ['LOG_LEVEL']
+MARC_DAILY_DIR = Path( os.environ['MARC_DAILY_DIR'] )
+MARC_FULL_DIR = Path( os.environ['MARC_FULL_DIR'] )
 
-MARC_DAILY_DIR=os.environ['MARC_DAILY_DIR']
-MARC_FULL_DIR=os.environ['MARC_FULL_DIR']
 
+## setup logging ----------------------------------------------------
+lglvldct = {
+    'DEBUG': logging.DEBUG,
+    'INFO': logging.INFO }
+logging.basicConfig(
+    level=lglvldct[LOG_LEVEL],  # assigns the level-object to the level-key loaded from the envar
+    format='[%(asctime)s] %(levelname)s [%(module)s-%(funcName)s()::%(lineno)d] %(message)s',
+    datefmt='%d/%b/%Y %H:%M:%S' )
+log = logging.getLogger( __name__ )
+log.debug( 'logging working' )
+ 
 
 def run_report():
+    ## get a list of .tar.gz files from full-export directory ----------
+    marc_files = [ f for f in MARC_FULL_DIR.glob('*.tar.gz') ]
+    log.debug( f'found ``{len(marc_files)}`` marc files in ``{MARC_FULL_DIR}``' )
+
     # ...
     print('will generate report')
     # ...
