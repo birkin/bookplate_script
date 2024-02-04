@@ -1,12 +1,12 @@
 ## stdlib
-import argparse, logging, os, pathlib
+import argparse, logging, os, pathlib, pprint
 from pathlib import Path
 
 ## 3rd party
 from dotenv import load_dotenv, find_dotenv
 
 ## local
-from lib.helpers import decompress_file
+from lib import helpers
 
 
 ## load envars ------------------------------------------------------
@@ -36,9 +36,10 @@ def run_report():
     log.debug( f'found ``{len(compressed_marc_files)}`` marc files in ``{MARC_FULL_DIR_SOURCE}``' )
 
     for compressed_f_pathobj in compressed_marc_files:
-        log.debug( f'processing ``{compressed_f_pathobj}``' )
+        ## get output path ------------------------------------------
+        output_path: pathlib.Path = helpers.make_output_path( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
         ## extract the .tar.gz files --------------------------------
-        decompress_file( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
+        helpers.decompress_file( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
         ## process the .mrc file ------------------------------------
         pass
         break  # temp, for development
