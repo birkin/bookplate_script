@@ -1,10 +1,12 @@
+## stdlib
 import argparse, logging, os
 from pathlib import Path
 
+## 3rd party
 from dotenv import load_dotenv, find_dotenv
 
 
-## handle envars ----------------------------------------------------
+## load envars ------------------------------------------------------
 load_dotenv( find_dotenv(raise_error_if_not_found=True) )
 LOG_LEVEL = os.environ['LOG_LEVEL']
 MARC_DAILY_DIR = Path( os.environ['MARC_DAILY_DIR'] )
