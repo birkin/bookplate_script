@@ -49,7 +49,13 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
     );
 
     // loop through list ------------------------
-    //      // decompress & write file ----------
+    for file in compressed_marc_files {
+        log_debug!("processingfile: {:?}", file);
+        // decompress & write file --------------
+        helpers::extract_tar_gz(&file, marc_full_output_files_dir)
+            .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue procesing.
+        break;
+    }
 
     println!("will generate report");
 } // end run_report()

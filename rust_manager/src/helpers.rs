@@ -1,5 +1,9 @@
+use flate2::read::GzDecoder;
 use regex::Regex;
+use std::fs::File;
+use std::io::Result;
 use std::path::PathBuf;
+use tar::Archive;
 // use crate::log_debug;
 
 pub fn grab_direcory_files(directory: &str) -> Vec<std::path::PathBuf> {
@@ -35,9 +39,7 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
     /*
     Sorts a list of filename path-objects that have unpadded numbers.
     Without padding, a simple-sort via string would yield entries like this: 1, 10, 100, 2, 20, 200, 3, 30, 300, etc.
-
-    Some notes...
-    - the sort_by() method sorts the items in-place
+    The sort_by() method sorts the items in-place.
     */
     // regex to find the numeric part of the filename
     let re = Regex::new(r"\d+").unwrap();
@@ -65,16 +67,13 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
     unsorted_files // Vec<PathBuf>
 }
 
-// fn extract_tar_gz(archive_path: &str, output_path: &str) -> Result<()> {
-//     // Open the .tar.gz file
-//     let tar_gz = File::open(archive_path)?;
-//     let tar = GzDecoder::new(tar_gz);
-
-//     // Create a new archive object
-//     let mut archive = Archive::new(tar);
-
-//     // Unpack the archive's contents into the output directory
-//     archive.unpack(output_path)?;
-
-//     Ok(())
-// }
+pub fn extract_tar_gz(archive_path: &PathBuf, output_path: &str) -> Result<()> {
+    // Open .tar.gz file
+    let tar_gz = File::open(archive_path)?; // propogate error to caller
+    let tar = GzDecoder::new(tar_gz);
+    // Create a new archive object
+    let mut archive = Archive::new(tar);
+    // Unpack the archive's contents into the output directory
+    archive.unpack(output_path)?; // propogate error to caller
+    Ok(())
+}
