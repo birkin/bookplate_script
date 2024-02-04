@@ -28,11 +28,11 @@ struct Args {
     both: bool,
 } // end argument-handling ------------------------------------------
 
-// - manages report-run ---------------------------------------------
+// - manage report-run ----------------------------------------------
 fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
     log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir); // temp; to eliminate cargo warning
 
-    // list the .tar.gz files ---------------------------------------
+    // list the .tar.gz files -------------------
     let unsorted_compressed_marc_files: Vec<std::path::PathBuf> =
         helpers::grab_direcory_files(&marc_full_source_files_dir);
     log_debug!(
@@ -40,7 +40,7 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         &unsorted_compressed_marc_files[0..3]
     );
 
-    // get a sorted list --------------------------------------------
+    // get a sorted list ------------------------
     let compressed_marc_files: Vec<std::path::PathBuf> =
         helpers::sort_files(unsorted_compressed_marc_files);
     log_debug!(
@@ -48,13 +48,13 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         &compressed_marc_files[0..3]
     );
 
-    // loop through list --------------------------------------------
-    //      // decompress & write file ------------------------------
+    // loop through list ------------------------
+    //      // decompress & write file ----------
 
     println!("will generate report");
-}
+} // end run_report()
 
-// - manages daily-db-update ----------------------------------------
+// - manage daily-db-update -----------------------------------------
 fn run_daily_db_update() {
     println!("will update daily db");
     // ...

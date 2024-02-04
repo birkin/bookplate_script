@@ -24,7 +24,8 @@ pub fn grab_direcory_files(directory: &str) -> Vec<std::path::PathBuf> {
     let entries = std::fs::read_dir(directory).expect("Unable to read directory");
     let mut paths = Vec::new();
     for entry in entries {
-        let entry = entry.expect("Error reading entry");
+        // entry is `Result<DirEntry, std::io::Error>`
+        let entry: std::fs::DirEntry = entry.expect("Error reading entry");
         paths.push(entry.path());
     }
     return paths;
@@ -46,11 +47,11 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
         let stem_a: &str = a.file_stem().and_then(|s| s.to_str()).unwrap_or("");
         let stem_b: &str = b.file_stem().and_then(|s| s.to_str()).unwrap_or("");
         // use regex to find the first numeric part of each stem
-        let num_a = re
+        let num_a: i32 = re
             .find(stem_a)
             .and_then(|m| m.as_str().parse::<i32>().ok())
             .unwrap_or(0);
-        let num_b = re
+        let num_b: i32 = re
             .find(stem_b)
             .and_then(|m| m.as_str().parse::<i32>().ok())
             .unwrap_or(0);
@@ -61,5 +62,5 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
             .then_with(|| stem_a.cmp(stem_b))
     });
 
-    unsorted_files
+    unsorted_files // Vec<PathBuf>
 }
