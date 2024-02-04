@@ -19,23 +19,24 @@ include!(concat!(env!("OUT_DIR"), "/git_commit.rs"));
     about = "Runs \"update\" or \"report\" bookplate-scripts based on the provided arguments."
 )]
 struct Args {
-    /// Run report script
     #[arg(long, action = ArgAction::SetTrue)]
     report: bool,
-
-    /// Run update script
     #[arg(long, action = ArgAction::SetTrue)]
     update: bool,
-
-    /// Run both report and update scripts
     #[arg(long, action = ArgAction::SetTrue)]
     both: bool,
 } // end argument-handling ------------------------------------------
 
 // - manages report-run ---------------------------------------------
 fn run_report() {
+    // list the .tar.gz files ---------------------------------------
+
+    // get a sorted list --------------------------------------------
+
+    // loop through list --------------------------------------------
+    //      // decompress & write file ------------------------------
+
     println!("will generate report");
-    // ...
 }
 
 // - manages daily-db-update ----------------------------------------
@@ -48,10 +49,10 @@ fn run_daily_db_update() {
 fn main() {
     // - load envars ------------------------------------------------
     dotenv().ok();
-    let _marc_daily_files_dir: String =
-        env::var("MARC_DAILY_DIR").expect("MARC_DAILY_DIR envar could not be retrieved.");
-    let _marc_full_files_dir: String =
-        env::var("MARC_FULL_DIR").expect("MARC_FULL_DIR envar could not be retrieved.");
+    let _marc_daily_source_files_dir: String = env::var("MARC_DAILY_SOURCE_DIR")
+        .expect("MARC_DAILY_SOURCE_DIR envar could not be retrieved.");
+    let _marc_full_source_files_dir: String = env::var("MARC_FULL_SOURCE_DIR")
+        .expect("MARC_FULL_SOURCE_DIR envar could not be retrieved.");
 
     // - set up logger ----------------------------------------------
     logger::init_logger().expect("Unable to initialize logger");
