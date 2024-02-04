@@ -6,7 +6,7 @@ log = logging.getLogger( __name__ )  # configured in manager.py
 
 
 def sort_unpadded_filenames( unsorted_filenames: list ) -> list:
-    """ Sorts a list of filenames that are unpadded numbers. 
+    """ Sorts a list of filenames that have unpadded numbers. 
         A simple sort would put 10 after 1, etc. 
         Called by manager.run_report() """
     log.debug( f'unsorted_filenames (first few), ``{pprint.pformat(unsorted_filenames[0:3])}``' )
