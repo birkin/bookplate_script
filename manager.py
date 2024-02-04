@@ -38,7 +38,7 @@ def run_report():
     for compressed_f_pathobj in compressed_marc_files:
         log.debug( f'processing ``{compressed_f_pathobj}``' )
         ## extract the .tar.gz files --------------------------------
-        decompress_file( compressed_f_pathobj, "foo" )
+        decompress_file( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
         ## process the .mrc file ------------------------------------
         pass
         break  # temp, for development
