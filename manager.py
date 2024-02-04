@@ -39,8 +39,8 @@ def run_report():
     # log.debug( f'compressed_marc_files, ``{pprint.pformat(compressed_marc_files)}``')
 
     for compressed_f_pathobj in compressed_marc_files:
-        ## get output path ------------------------------------------
-        output_path: pathlib.Path = helpers.make_output_path( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
+        ## get output path ------------------------------------------  # not needed, decompress_file() just puts the file in the output directory
+        # output_path: pathlib.Path = helpers.make_output_path( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
         ## extract the .tar.gz files --------------------------------
         helpers.decompress_file( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
         ## process the .mrc file ------------------------------------
