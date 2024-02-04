@@ -4,5 +4,7 @@
 #
 #    pip-compile ./requirements.in
 #
+pymarc==5.1.1
+    # via -r ./requirements.in
 python-dotenv==1.0.0
     # via -r ./requirements.in
