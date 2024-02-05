@@ -12,10 +12,10 @@ from lib import helpers
 ## load envars ------------------------------------------------------
 load_dotenv( find_dotenv(raise_error_if_not_found=True) )
 LOG_LEVEL = os.environ['LOG_LEVEL']
-MARC_DAILY_DIR_SOURCE = Path( os.environ['MARC_DAILY_DIR_SOURCE'] )
-MARC_DAILY_DIR_OUTPUT = Path( os.environ['MARC_DAILY_DIR_OUTPUT'] )
-MARC_FULL_DIR_SOURCE = Path( os.environ['MARC_FULL_DIR_SOURCE'] )
-MARC_FULL_DIR_OUTPUT = Path( os.environ['MARC_FULL_DIR_OUTPUT'] )
+MARC_DAILY_SOURCE_DIR = Path( os.environ['MARC_DAILY_SOURCE_DIR'] )
+MARC_DAILY_OUTPUT_DIR = Path( os.environ['MARC_DAILY_OUTPUT_DIR'] )
+MARC_FULL_SOURCE_DIR = Path( os.environ['MARC_FULL_SOURCE_DIR'] )
+MARC_FULL_OUTPUT_DIR = Path( os.environ['MARC_FULL_OUTPUT_DIR'] )
 
 
 ## setup logging ----------------------------------------------------
@@ -32,20 +32,20 @@ log.debug( 'logging working' )
 
 def run_report():
     ## list the .tar.gz files ---------------------------------------
-    unsorted_compressed_marc_files = [ f for f in MARC_FULL_DIR_SOURCE.glob('*.tar.gz') ]  # creates list of pathlib objects
-    # compressed_marc_files = sorted( unsorted_compressed_marc_files )
+    unsorted_compressed_marc_files = [ f for f in MARC_FULL_SOURCE_DIR.glob('*.tar.gz') ]  # creates list of pathlib objects
     compressed_marc_files = helpers.sort_unpadded_filenames( unsorted_compressed_marc_files )
-    log.info( f'found ``{len(compressed_marc_files)}`` marc files in ``{MARC_FULL_DIR_SOURCE}``' )
+    log.info( f'found ``{len(compressed_marc_files)}`` marc files in ``{MARC_FULL_SOURCE_DIR}``' )
     # log.debug( f'compressed_marc_files, ``{pprint.pformat(compressed_marc_files)}``')
 
-    for compressed_f_pathobj in compressed_marc_files:
-        ## get output path ------------------------------------------  # not needed, decompress_file() just puts the file in the output directory
-        # output_path: pathlib.Path = helpers.make_output_path( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
+    for ( i, compressed_f_pathobj ) in enumerate( compressed_marc_files ):
+        log.info( f'processing file ``{compressed_f_pathobj}``')
         ## extract the .tar.gz files --------------------------------
-        helpers.decompress_file( compressed_f_pathobj, MARC_FULL_DIR_OUTPUT )
+        helpers.decompress_file( compressed_f_pathobj, MARC_FULL_OUTPUT_DIR )
         ## process the .mrc file ------------------------------------
         pass
-        break  # temp, for development
+        if i >= 2:  # for testing
+            break  
+        i += 1
 
     # ...
     print('will generate report')
