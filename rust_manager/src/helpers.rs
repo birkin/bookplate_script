@@ -32,6 +32,8 @@ pub fn grab_direcory_files(directory: &str) -> Vec<std::path::PathBuf> {
         let entry: std::fs::DirEntry = entry.expect("Error reading entry");
         paths.push(entry.path());
     }
+    log_debug!("first 3 unsorted_compressed_marc_files: {:?}", &paths[0..3]);
+
     return paths;
 }
 
@@ -63,6 +65,17 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
             // if numeric parts are equal, fall back to comparing the whole stem lexically
             .then_with(|| stem_a.cmp(stem_b))
     });
+    log_info!(
+        "found ``{:?}`` marc files in ``{:?}``",
+        &unsorted_files.len(),
+        &unsorted_files[0]
+            .parent()
+            .expect("unable to get parent directory")
+    );
+    log_debug!(
+        "first 3 sorted_compressed_marc_files: ``{:?}``",
+        &unsorted_files[0..3]
+    );
 
     unsorted_files // Vec<PathBuf>
 }
