@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use tar::Archive;
 
 use std::io::BufReader;
-use std::io::BufRead;
+// use std::io::BufRead;
 
 const RECORD_TERMINATOR: u8 = 0x1D;
 
@@ -147,8 +147,11 @@ pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
 
     // -- load xml
     // let marc_records: Collection = load_records(&marc_xml_path);
-    let marc_records: Vec<marc::Record<'_>> = load_records(marc_xml_path);
-    log_debug!("marc_records.len(), ``{:?}``", marc_records.len());
+    let marc_xml_path_str = marc_xml_path.to_str().expect("Path contains invalid Unicode");
+
+
+    let marc_records = load_records(marc_xml_path_str);
+    // log_debug!("marc_records.len(), ``{:?}``", marc_records.len());
     // log_debug!("first marc_record, ``{:?}``", marc_records[0]);
 
     // debug!("first marc_record, ``{:?}``", marc_records.records[0]);
@@ -188,47 +191,80 @@ pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
 }
 
 
-// fn load_records( file_path: &str ) -> Vec< marc::Record<'static> > {
-fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
-    log_debug!("file_path, ``{:?}``", file_path);
+// // fn load_records( file_path: &str ) -> Vec< marc::Record<'static> > {
+// fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
+//     log_debug!("file_path, ``{:?}``", file_path);
 
-    /* marc_cli was helpful figuring out how to do this */
+//     /* marc_cli was helpful figuring out how to do this */
 
-    // create the return Vec
-    let mut result_vector: Vec<marc::Record> = Vec::new();
+//     // create the return Vec
+//     let mut result_vector: Vec<marc::Record> = Vec::new();
 
-    // create path-object to pass to file-handler
-    let path = Path::new( file_path );
-    log_debug!("path, ``{:?}``", path);
-    let error_path_display = path.display();
+//     // create path-object to pass to file-handler
+//     let path = Path::new( file_path );
+//     log_debug!("path, ``{:?}``", path);
+//     let error_path_display = path.display();
 
-    // access the file
-    let file = match File::open(&path) {
-        Err(why) => panic!( "Couldn't open {}: {}", error_path_display, why.to_string() ),
-        Ok(file) => file,
-    };
+//     // access the file
+//     let file = match File::open(&path) {
+//         Err(why) => panic!( "Couldn't open {}: {}", error_path_display, why.to_string() ),
+//         Ok(file) => file,
+//     };
 
-    /*
-        <https://doc.rust-lang.org/std/io/struct.BufReader.html>
+//     /*
+//         <https://doc.rust-lang.org/std/io/struct.BufReader.html>
 
-        "...A BufReader<R> performs large, infrequent reads on the underlying Read and maintains an in-memory buffer of the results.
-        BufReader<R> can improve the speed of programs that make small and repeated read calls to the same file or network socket...""
-     */
+//         "...A BufReader<R> performs large, infrequent reads on the underlying Read and maintains an in-memory buffer of the results.
+//         BufReader<R> can improve the speed of programs that make small and repeated read calls to the same file or network socket...""
+//      */
 
-    let mut buf_reader = BufReader::new( file );
-    let mut marc_record_buffer = Vec::new();  // the buffer where the marc-record-segment will be stored
+//     let mut buf_reader = BufReader::new( file );
+//     let mut marc_record_buffer = Vec::new();  // the buffer where the marc-record-segment will be stored
 
-    while buf_reader.read_until( RECORD_TERMINATOR, &mut marc_record_buffer ).unwrap() != 0 {
-        match marc::Record::from_vec(marc_record_buffer.clone()) {
-            Err(_) => (),
-            Ok(record) => result_vector.push(record.clone()),
-        }
+//     while buf_reader.read_until( RECORD_TERMINATOR, &mut marc_record_buffer ).unwrap() != 0 {
+//         match marc::Record::from_vec(marc_record_buffer.clone()) {
+//             Err(_) => (),
+//             Ok(record) => result_vector.push(record.clone()),
+//         }
 
-        marc_record_buffer.clear();
-    }
+//         marc_record_buffer.clear();
+//     }
 
-    return result_vector;
+//     return result_vector;
+// }
+
+
+// fn load_records(marc_xml_path: &str) -> Collection {
+fn load_records(marc_xml_path: &str) -> marc::BibliographicLevel {
+    // -- Read the MARC XML file
+    // let file = File::open(marc_xml_path)?;
+    let file = File::open(marc_xml_path).unwrap_or_else(|err| {
+        panic!("could not open the marc_xml_path; error, ``{}``", err);
+    });
+    let mut reader = BufReader::new(file);
+
+    let mut contents = String::new();
+    // reader.read_to_string(&mut contents)?;
+    reader.read_to_string(&mut contents).unwrap_or_else(|err| {
+        panic!("could not read the file; error, ``{}``", err);
+    });
+    // debug!("contents, ``{:?}``", contents);
+
+    // -- Deserialize the XML into a Collection
+    let collection: marc::BibliographicLevel = serde_xml_rs::from_str(&contents).unwrap_or_else(|err| {
+        panic!("could not deserialize the marc_xml; error, ``{}``", err);
+    });
+
+    // -- log the collection
+    let collection_str = format!("{:?}", collection);
+    let collection_substr_ellipses =
+        format!("{}...", &collection_str[..collection_str.len().min(200)]);
+    log_debug!("collection (partial), ``{:?}``", collection_substr_ellipses);
+
+    return collection;
 }
+
+
 
 // fn process_record(record: &RecordXml) {
 //     let title: String = parse_title(&record);
