@@ -148,6 +148,8 @@ pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
     // -- load xml
     // let marc_records: Collection = load_records(&marc_xml_path);
     let marc_records: Vec<marc::Record<'_>> = load_records(marc_xml_path);
+    log_debug!("marc_records.len(), ``{:?}``", marc_records.len());
+    // log_debug!("first marc_record, ``{:?}``", marc_records[0]);
 
     // debug!("first marc_record, ``{:?}``", marc_records.records[0]);
 
@@ -188,6 +190,7 @@ pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
 
 // fn load_records( file_path: &str ) -> Vec< marc::Record<'static> > {
 fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
+    log_debug!("file_path, ``{:?}``", file_path);
 
     /* marc_cli was helpful figuring out how to do this */
 
@@ -196,6 +199,7 @@ fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
 
     // create path-object to pass to file-handler
     let path = Path::new( file_path );
+    log_debug!("path, ``{:?}``", path);
     let error_path_display = path.display();
 
     // access the file
