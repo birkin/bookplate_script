@@ -1,5 +1,6 @@
 use flate2::read::GzDecoder;
 use regex::Regex;
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Result;
 use std::os::unix::fs::PermissionsExt;
@@ -93,7 +94,9 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
 
 pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBuf> {
     /*
-    Extracts a .tar.gz file to a directory and returns the path to the extracted file.
+    - Extracts a .tar.gz file to a directory,
+    - Sets the file to be group read-writeable,
+    - Returns the path to the extracted file
     */
     // Open file
     let f = File::open(archive_path)?; // Propagate error to caller
@@ -122,4 +125,36 @@ pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBu
     fs::set_permissions(&output_path, permissions)?;
 
     Ok(output_path)
+}
+
+pub fn read_marc_xml(file_path: &PathBuf) -> Vec<HashMap<String, String>> {
+    /*
+    This will...
+    - Reads a marc-xml file,
+    - Creates a list of marc-records,
+    - Pulls out the title for each marc-record.
+
+    ...but for now just returns back a hard-coded list of hash maps, like
+    [ {'key_A1': 'foo_A1', 'key_A2': 'foo_A2'},  {'key_B1': 'foo_B1', 'key_B2': 'foo_B2'} ]
+    */
+    log_debug!("marc-xml file_path: ``{:?}``", &file_path);
+    // Create a vector to hold the hash maps
+    let mut records = Vec::new();
+
+    // Create the first hash map and add key-value pairs
+    let mut record1 = HashMap::new();
+    record1.insert(String::from("key_A1"), String::from("foo_A1"));
+    record1.insert(String::from("key_A2"), String::from("foo_A2"));
+
+    // Create the second hash map and add key-value pairs
+    let mut record2 = HashMap::new();
+    record2.insert(String::from("key_B1"), String::from("foo_B1"));
+    record2.insert(String::from("key_B2"), String::from("foo_B2"));
+
+    // Add the hash maps to the vector
+    records.push(record1);
+    records.push(record2);
+
+    // Return the vector of hash maps
+    records
 }

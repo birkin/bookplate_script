@@ -1,5 +1,6 @@
 use clap::{ArgAction, Parser};
 use dotenvy::dotenv;
+use std::collections::HashMap;
 use std::env;
 
 #[macro_use]
@@ -60,6 +61,8 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         - create a list of marc-records
         - for all marc-records, pull out title
          */
+        let _bookplate_data: Vec<HashMap<std::string::String, std::string::String>> =
+            helpers::read_marc_xml(&output_file);
 
         // delete file ---------------------------
 
