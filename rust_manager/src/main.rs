@@ -1,6 +1,6 @@
+// use std::collections::HashMap;
 use clap::{ArgAction, Parser};
 use dotenvy::dotenv;
-use std::collections::HashMap;
 use std::env;
 
 #[macro_use]
@@ -48,8 +48,6 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         log_debug!("processing file: {:?}", file);
 
         // decompress & write file --------------
-        // helpers::extract_tar_gz(&file, marc_full_output_files_dir)
-        //     .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
         let output_file: std::path::PathBuf =
             helpers::extract_tar_gz(&file, marc_full_output_files_dir)
                 .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
@@ -61,8 +59,8 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         - create a list of marc-records
         - for all marc-records, pull out title
          */
-        let _bookplate_data: Vec<HashMap<std::string::String, std::string::String>> =
-            helpers::read_marc_xml(&output_file);
+        // let _bookplate_data: Vec<HashMap<std::string::String, std::string::String>> =
+        //     helpers::read_marc_xml(&output_file);
 
         // delete file ---------------------------
 

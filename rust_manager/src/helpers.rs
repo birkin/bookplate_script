@@ -1,16 +1,15 @@
+// use std::collections::HashMap;
+// use std::io::BufRead;
+// use std::io::BufReader;
 use flate2::read::GzDecoder;
 use regex::Regex;
-use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Result;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use tar::Archive;
 
-use std::io::BufReader;
-// use std::io::BufRead;
-
-const RECORD_TERMINATOR: u8 = 0x1D;
+// const RECORD_TERMINATOR: u8 = 0x1D;
 
 pub fn grab_directory_files(directory: &str) -> Vec<std::path::PathBuf> {
     /*
@@ -83,19 +82,8 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
         &unsorted_files[0..3]
     );
 
-    unsorted_files // Vec<PathBuf>
+    unsorted_files // Vec<PathBuf> -- and they're now sorted
 }
-
-// pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<()> {
-//     // open file
-//     let f = File::open(archive_path)?; // propogate error to caller
-//     let decoder = GzDecoder::new(f);
-//     // create a new archive object
-//     let mut archive = Archive::new(decoder);
-//     // unpack the archive's contents into the output directory
-//     archive.unpack(output_dir)?; // propogate error to caller
-//     Ok(())
-// }
 
 pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBuf> {
     /*
@@ -131,161 +119,3 @@ pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBu
 
     Ok(output_path)
 }
-
-pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
-    /*
-    This will...
-    - Reads a marc-xml file,
-    - Creates a list of marc-records,
-    - Pulls out the title for each marc-record.
-
-    ...but for now just returns back a hard-coded list of hash maps, like
-    [ {'key_A1': 'foo_A1', 'key_A2': 'foo_A2'},  {'key_B1': 'foo_B1', 'key_B2': 'foo_B2'} ]
-    */
-    log_debug!("marc-xml file_path: ``{:?}``", &marc_xml_path);
-
-
-    // -- load xml
-    // let marc_records: Collection = load_records(&marc_xml_path);
-    let marc_xml_path_str = marc_xml_path.to_str().expect("Path contains invalid Unicode");
-
-
-    let marc_records = load_records(marc_xml_path_str);
-    // log_debug!("marc_records.len(), ``{:?}``", marc_records.len());
-    // log_debug!("first marc_record, ``{:?}``", marc_records[0]);
-
-    // debug!("first marc_record, ``{:?}``", marc_records.records[0]);
-
-    // -- iterate through records
-
-    // for record in marc_records.iter() {  // original syntax
-    //     process_record(record);
-    // }
-
-    /* rayon iteration syntax */
-    // marc_records.records.par_iter().for_each(|record| {
-    //     process_record(record);
-    // });
-
-
-
-    // Create a vector to hold the hash maps
-    let mut records = Vec::new();
-
-    // Create the first hash map and add key-value pairs
-    let mut record1 = HashMap::new();
-    record1.insert(String::from("key_A1"), String::from("foo_A1"));
-    record1.insert(String::from("key_A2"), String::from("foo_A2"));
-
-    // Create the second hash map and add key-value pairs
-    let mut record2 = HashMap::new();
-    record2.insert(String::from("key_B1"), String::from("foo_B1"));
-    record2.insert(String::from("key_B2"), String::from("foo_B2"));
-
-    // Add the hash maps to the vector
-    records.push(record1);
-    records.push(record2);
-
-    // Return the vector of hash maps
-    records
-}
-
-
-// // fn load_records( file_path: &str ) -> Vec< marc::Record<'static> > {
-// fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
-//     log_debug!("file_path, ``{:?}``", file_path);
-
-//     /* marc_cli was helpful figuring out how to do this */
-
-//     // create the return Vec
-//     let mut result_vector: Vec<marc::Record> = Vec::new();
-
-//     // create path-object to pass to file-handler
-//     let path = Path::new( file_path );
-//     log_debug!("path, ``{:?}``", path);
-//     let error_path_display = path.display();
-
-//     // access the file
-//     let file = match File::open(&path) {
-//         Err(why) => panic!( "Couldn't open {}: {}", error_path_display, why.to_string() ),
-//         Ok(file) => file,
-//     };
-
-//     /*
-//         <https://doc.rust-lang.org/std/io/struct.BufReader.html>
-
-//         "...A BufReader<R> performs large, infrequent reads on the underlying Read and maintains an in-memory buffer of the results.
-//         BufReader<R> can improve the speed of programs that make small and repeated read calls to the same file or network socket...""
-//      */
-
-//     let mut buf_reader = BufReader::new( file );
-//     let mut marc_record_buffer = Vec::new();  // the buffer where the marc-record-segment will be stored
-
-//     while buf_reader.read_until( RECORD_TERMINATOR, &mut marc_record_buffer ).unwrap() != 0 {
-//         match marc::Record::from_vec(marc_record_buffer.clone()) {
-//             Err(_) => (),
-//             Ok(record) => result_vector.push(record.clone()),
-//         }
-
-//         marc_record_buffer.clear();
-//     }
-
-//     return result_vector;
-// }
-
-
-// fn load_records(marc_xml_path: &str) -> Collection {
-fn load_records(marc_xml_path: &str) -> marc::BibliographicLevel {
-    // -- Read the MARC XML file
-    // let file = File::open(marc_xml_path)?;
-    let file = File::open(marc_xml_path).unwrap_or_else(|err| {
-        panic!("could not open the marc_xml_path; error, ``{}``", err);
-    });
-    let mut reader = BufReader::new(file);
-
-    let mut contents = String::new();
-    // reader.read_to_string(&mut contents)?;
-    reader.read_to_string(&mut contents).unwrap_or_else(|err| {
-        panic!("could not read the file; error, ``{}``", err);
-    });
-    // debug!("contents, ``{:?}``", contents);
-
-    // -- Deserialize the XML into a Collection
-    let collection: marc::BibliographicLevel = serde_xml_rs::from_str(&contents).unwrap_or_else(|err| {
-        panic!("could not deserialize the marc_xml; error, ``{}``", err);
-    });
-
-    // -- log the collection
-    let collection_str = format!("{:?}", collection);
-    let collection_substr_ellipses =
-        format!("{}...", &collection_str[..collection_str.len().min(200)]);
-    log_debug!("collection (partial), ``{:?}``", collection_substr_ellipses);
-
-    return collection;
-}
-
-
-
-// fn process_record(record: &RecordXml) {
-//     let title: String = parse_title(&record);
-//     println!(
-//         "\ntitle, ``{:?}``",
-//         title
-//     );
-// }
-
-// fn parse_title(record: &RecordXml) -> String {
-//     let mut title = String::new();
-//     for datafield in &record.datafields {
-//         if datafield.tag == "245" {
-//             for subfield in &datafield.subfields {
-//                 if subfield.code == "a" {
-//                     title = subfield.value.clone().unwrap_or_else(|| "".to_string());
-//                     // title explanation: <https://gist.github.com/birkin/57952fa4052167ddb8b5c98ec8beb920>
-//                 }
-//             }
-//         }
-//     }
-//     title
-// }
-
