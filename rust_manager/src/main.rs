@@ -45,16 +45,30 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
     // loop through list ------------------------
     for (i, file) in compressed_marc_files.iter().enumerate() {
         log_debug!("processing file: {:?}", file);
+
         // decompress & write file --------------
         helpers::extract_tar_gz(&file, marc_full_output_files_dir)
             .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
-        
+
+        // read marc-xml file -------------------
+        /*
+        - open file
+        - create a list of marc-records
+        - for all marc-records, pull out title
+         */
+
+        // delete file ---------------------------
+
         // Log progress for every fifth file, i starts at 0 so add 1 for human-readable count
-        if (i + 1) % 5 == 0 {
-            log_info!("Processed {} of {} files.", i + 1, compressed_marc_files.len());
+        if (i + 1) % 3 == 0 {
+            log_info!(
+                "Processed {} of {} files.",
+                i + 1,
+                compressed_marc_files.len()
+            );
         }
 
-        if i >= 9 {
+        if i >= 4 {
             break; // break after processing subset of files
         }
     }
