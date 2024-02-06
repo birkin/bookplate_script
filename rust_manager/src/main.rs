@@ -47,8 +47,12 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         log_debug!("processing file: {:?}", file);
 
         // decompress & write file --------------
-        helpers::extract_tar_gz(&file, marc_full_output_files_dir)
-            .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
+        // helpers::extract_tar_gz(&file, marc_full_output_files_dir)
+        //     .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
+        let output_file: std::path::PathBuf =
+            helpers::extract_tar_gz(&file, marc_full_output_files_dir)
+                .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
+        log_debug!("output_file: {:?}", &output_file);
 
         // read marc-xml file -------------------
         /*

@@ -1,10 +1,10 @@
 use flate2::read::GzDecoder;
 use regex::Regex;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::Result;
-use std::path::PathBuf;
+use std::os::unix::fs::PermissionsExt;
+use std::path::{Path, PathBuf};
 use tar::Archive;
-// use crate::log_debug;
 
 pub fn grab_directory_files(directory: &str) -> Vec<std::path::PathBuf> {
     /*
@@ -80,13 +80,46 @@ pub fn sort_files(mut unsorted_files: Vec<PathBuf>) -> Vec<PathBuf> {
     unsorted_files // Vec<PathBuf>
 }
 
-pub fn extract_tar_gz(archive_path: &PathBuf, output_path: &str) -> Result<()> {
-    // Open .tar.gz file
-    let tar_gz = File::open(archive_path)?; // propogate error to caller
-    let tar = GzDecoder::new(tar_gz);
+// pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<()> {
+//     // open file
+//     let f = File::open(archive_path)?; // propogate error to caller
+//     let decoder = GzDecoder::new(f);
+//     // create a new archive object
+//     let mut archive = Archive::new(decoder);
+//     // unpack the archive's contents into the output directory
+//     archive.unpack(output_dir)?; // propogate error to caller
+//     Ok(())
+// }
+
+pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBuf> {
+    /*
+    Extracts a .tar.gz file to a directory and returns the path to the extracted file.
+    */
+    // Open file
+    let f = File::open(archive_path)?; // Propagate error to caller
+    let decoder = GzDecoder::new(f);
     // Create a new archive object
-    let mut archive = Archive::new(tar);
+    let mut archive = Archive::new(decoder);
     // Unpack the archive's contents into the output directory
-    archive.unpack(output_path)?; // propogate error to caller
-    Ok(())
+    archive.unpack(output_dir)?; // Propagate error to caller
+
+    // Construct the output file name
+    let file_stem = archive_path
+        .file_stem() // Get the file stem (filename without the last extension)
+        .and_then(|f| f.to_str()) // Convert OsStr to &str
+        .map(|s| s.trim_end_matches(".tar")) // Trim the ".tar" part if it exists
+        .unwrap_or(""); // Fallback to empty string if any step fails
+
+    let output_file_name = format!("{}.xml", file_stem); // Append ".xml" to the file stem
+
+    // Construct the full path to the output file
+    let output_path = Path::new(output_dir).join(output_file_name);
+
+    // Set group permissions to read-write
+    let metadata = fs::metadata(&output_path)?;
+    let mut permissions = metadata.permissions();
+    permissions.set_mode(0o664); // rw-rw-r--: Owner and group have read-write, others have read
+    fs::set_permissions(&output_path, permissions)?;
+
+    Ok(output_path)
 }
