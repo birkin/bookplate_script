@@ -40,20 +40,20 @@ def run_report():
     for ( i, compressed_f_pathobj ) in enumerate( compressed_marc_files ):
         log.debug( f'processing file ``{compressed_f_pathobj}``')
         ## extract the .tar.gz files --------------------------------
-        helpers.decompress_file( compressed_f_pathobj, MARC_FULL_OUTPUT_DIR )
-        ## process the .mrc file ------------------------------------
-        pass
+        output_filepath: Path = helpers.decompress_file( compressed_f_pathobj, MARC_FULL_OUTPUT_DIR )
+        ## process the marc_xml data-file ---------------------------
+        bookplate_data: dict = helpers.process_marc_file( output_filepath )
         total_files = len(compressed_marc_files)
-        if (i + 1) % 5 == 0 or i == total_files - 1:  # After every 10 files or the last file
+        if (i + 1) % 3 == 0 or i == total_files - 1:  # After every 10 files or the last file
             log.info(f'Processed {i + 1} of {total_files} files.')
+        ## delete the marc_xml data-file ----------------------------
+        output_filepath.unlink()
 
-        if i >= 9:  # for testing
+        if i >= 4:  # for testing
             break  
         i += 1
 
-    # ...
     log.info( 'done' )
-    # ...
     return
 
 
