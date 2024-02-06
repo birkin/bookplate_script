@@ -36,7 +36,7 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
 
     // list the .tar.gz files -------------------
     let unsorted_compressed_marc_files: Vec<std::path::PathBuf> =
-        helpers::grab_direcory_files(&marc_full_source_files_dir);
+        helpers::grab_directory_files(&marc_full_source_files_dir);
 
     // get a sorted list ------------------------
     let compressed_marc_files: Vec<std::path::PathBuf> =
@@ -44,16 +44,22 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
 
     // loop through list ------------------------
     for (i, file) in compressed_marc_files.iter().enumerate() {
-        log_info!("processing file: {:?}", file);
+        log_debug!("processing file: {:?}", file);
         // decompress & write file --------------
         helpers::extract_tar_gz(&file, marc_full_output_files_dir)
             .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
-        if i >= 2 {
-            break; // break after processing three items
+        
+        // Log progress for every fifth file, i starts at 0 so add 1 for human-readable count
+        if (i + 1) % 5 == 0 {
+            log_info!("Processed {} of {} files.", i + 1, compressed_marc_files.len());
+        }
+
+        if i >= 9 {
+            break; // break after processing subset of files
         }
     }
 
-    println!("will generate report");
+    log_info!("done");
 } // end run_report()
 
 // - manage daily-db-update -----------------------------------------
@@ -92,3 +98,27 @@ fn main() {
         run_daily_db_update();
     }
 }
+
+// // using rayon ------------------------------------------------------
+// fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
+//     log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir);
+
+//     let unsorted_compressed_marc_files: Vec<std::path::PathBuf> =
+//         helpers::grab_directory_files(marc_full_source_files_dir);
+
+//     let compressed_marc_files: Vec<std::path::PathBuf> =
+//         helpers::sort_files(unsorted_compressed_marc_files);
+
+//     // Create a subset of the first 10 items (or fewer, if there aren't 10)
+//     let subset_compressed_marc_files: Vec<&std::path::PathBuf> =
+//         compressed_marc_files.iter().take(10).collect();
+
+//     // Use Rayon's parallel iterator to process the subset in parallel
+//     subset_compressed_marc_files.par_iter().for_each(|file| {
+//         log_debug!("processing file: {:?}", file);
+//         helpers::extract_tar_gz(file, marc_full_output_files_dir)
+//             .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display()));
+//     });
+
+//     log_info!("done");
+// }

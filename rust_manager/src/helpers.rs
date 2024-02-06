@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use tar::Archive;
 // use crate::log_debug;
 
-pub fn grab_direcory_files(directory: &str) -> Vec<std::path::PathBuf> {
+pub fn grab_directory_files(directory: &str) -> Vec<std::path::PathBuf> {
     /*
     Some notes...
     - ```std::fs::read_dir(marc_full_source_files_dir)```
