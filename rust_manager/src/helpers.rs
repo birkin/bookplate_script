@@ -7,6 +7,11 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use tar::Archive;
 
+use std::io::BufReader;
+use std::io::BufRead;
+
+const RECORD_TERMINATOR: u8 = 0x1D;
+
 pub fn grab_directory_files(directory: &str) -> Vec<std::path::PathBuf> {
     /*
     Some notes...
@@ -127,7 +132,7 @@ pub fn extract_tar_gz(archive_path: &PathBuf, output_dir: &str) -> Result<PathBu
     Ok(output_path)
 }
 
-pub fn read_marc_xml(file_path: &PathBuf) -> Vec<HashMap<String, String>> {
+pub fn read_marc_xml(marc_xml_path: &PathBuf) -> Vec<HashMap<String, String>> {
     /*
     This will...
     - Reads a marc-xml file,
@@ -137,7 +142,28 @@ pub fn read_marc_xml(file_path: &PathBuf) -> Vec<HashMap<String, String>> {
     ...but for now just returns back a hard-coded list of hash maps, like
     [ {'key_A1': 'foo_A1', 'key_A2': 'foo_A2'},  {'key_B1': 'foo_B1', 'key_B2': 'foo_B2'} ]
     */
-    log_debug!("marc-xml file_path: ``{:?}``", &file_path);
+    log_debug!("marc-xml file_path: ``{:?}``", &marc_xml_path);
+
+
+    // -- load xml
+    // let marc_records: Collection = load_records(&marc_xml_path);
+    let marc_records: Vec<marc::Record<'_>> = load_records(marc_xml_path);
+
+    // debug!("first marc_record, ``{:?}``", marc_records.records[0]);
+
+    // -- iterate through records
+
+    // for record in marc_records.iter() {  // original syntax
+    //     process_record(record);
+    // }
+
+    /* rayon iteration syntax */
+    // marc_records.records.par_iter().for_each(|record| {
+    //     process_record(record);
+    // });
+
+
+
     // Create a vector to hold the hash maps
     let mut records = Vec::new();
 
@@ -158,3 +184,68 @@ pub fn read_marc_xml(file_path: &PathBuf) -> Vec<HashMap<String, String>> {
     // Return the vector of hash maps
     records
 }
+
+
+// fn load_records( file_path: &str ) -> Vec< marc::Record<'static> > {
+fn load_records( file_path: &PathBuf ) -> Vec< marc::Record<'static> > {
+
+    /* marc_cli was helpful figuring out how to do this */
+
+    // create the return Vec
+    let mut result_vector: Vec<marc::Record> = Vec::new();
+
+    // create path-object to pass to file-handler
+    let path = Path::new( file_path );
+    let error_path_display = path.display();
+
+    // access the file
+    let file = match File::open(&path) {
+        Err(why) => panic!( "Couldn't open {}: {}", error_path_display, why.to_string() ),
+        Ok(file) => file,
+    };
+
+    /*
+        <https://doc.rust-lang.org/std/io/struct.BufReader.html>
+
+        "...A BufReader<R> performs large, infrequent reads on the underlying Read and maintains an in-memory buffer of the results.
+        BufReader<R> can improve the speed of programs that make small and repeated read calls to the same file or network socket...""
+     */
+
+    let mut buf_reader = BufReader::new( file );
+    let mut marc_record_buffer = Vec::new();  // the buffer where the marc-record-segment will be stored
+
+    while buf_reader.read_until( RECORD_TERMINATOR, &mut marc_record_buffer ).unwrap() != 0 {
+        match marc::Record::from_vec(marc_record_buffer.clone()) {
+            Err(_) => (),
+            Ok(record) => result_vector.push(record.clone()),
+        }
+
+        marc_record_buffer.clear();
+    }
+
+    return result_vector;
+}
+
+// fn process_record(record: &RecordXml) {
+//     let title: String = parse_title(&record);
+//     println!(
+//         "\ntitle, ``{:?}``",
+//         title
+//     );
+// }
+
+// fn parse_title(record: &RecordXml) -> String {
+//     let mut title = String::new();
+//     for datafield in &record.datafields {
+//         if datafield.tag == "245" {
+//             for subfield in &datafield.subfields {
+//                 if subfield.code == "a" {
+//                     title = subfield.value.clone().unwrap_or_else(|| "".to_string());
+//                     // title explanation: <https://gist.github.com/birkin/57952fa4052167ddb8b5c98ec8beb920>
+//                 }
+//             }
+//         }
+//     }
+//     title
+// }
+
