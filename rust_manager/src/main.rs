@@ -31,7 +31,42 @@ struct Args {
     both: bool,
 } // end argument-handling ------------------------------------------
 
-// - manage report-run ----------------------------------------------
+/*
+main ------------------------------------------------------------
+*/
+fn main() {
+    // - load envars ------------------------------------------------
+    dotenv().ok();
+    let _marc_daily_source_files_dir: String = env::var("MARC_DAILY_SOURCE_DIR")
+        .expect("MARC_DAILY_SOURCE_DIR envar could not be retrieved.");
+    let marc_full_source_files_dir: String = env::var("MARC_FULL_SOURCE_DIR")
+        .expect("MARC_FULL_SOURCE_DIR envar could not be retrieved.");
+    let marc_full_output_files_dir: String = env::var("MARC_FULL_OUTPUT_DIR")
+        .expect("MARC_FULL_OUTPUT_DIR envar could not be retrieved.");
+
+    // - set up logger ----------------------------------------------
+    logger::init_logger().expect("Unable to initialize logger");
+    log_debug!("logging configured.");
+
+    // - parse args --------------------------------------------------
+    let args = Args::parse();
+    if !args.report && !args.update && !args.both {
+        println!("Please provide either the --update, --report, or --both argument.");
+        std::process::exit(1);
+    }
+
+    // - run scripts ------------------------------------------------
+    if args.report || args.both {
+        run_report(&marc_full_source_files_dir, &marc_full_output_files_dir);
+    }
+    if args.update || args.both {
+        run_daily_db_update();
+    }
+}
+
+/*
+manage report-run ---------------------------------------------------
+*/
 fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
     log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir); // temp; to eliminate cargo warning
 
@@ -81,44 +116,17 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
     log_info!("done");
 } // end run_report()
 
-// - manage daily-db-update -----------------------------------------
+/*
+manage daily-db-update ----------------------------------------------
+*/
 fn run_daily_db_update() {
     println!("will update daily db");
     // ...
 }
 
-// - main -----------------------------------------------------------
-fn main() {
-    // - load envars ------------------------------------------------
-    dotenv().ok();
-    let _marc_daily_source_files_dir: String = env::var("MARC_DAILY_SOURCE_DIR")
-        .expect("MARC_DAILY_SOURCE_DIR envar could not be retrieved.");
-    let marc_full_source_files_dir: String = env::var("MARC_FULL_SOURCE_DIR")
-        .expect("MARC_FULL_SOURCE_DIR envar could not be retrieved.");
-    let marc_full_output_files_dir: String = env::var("MARC_FULL_OUTPUT_DIR")
-        .expect("MARC_FULL_OUTPUT_DIR envar could not be retrieved.");
-
-    // - set up logger ----------------------------------------------
-    logger::init_logger().expect("Unable to initialize logger");
-    log_debug!("logging configured.");
-
-    // - parse args --------------------------------------------------
-    let args = Args::parse();
-    if !args.report && !args.update && !args.both {
-        println!("Please provide either the --update, --report, or --both argument.");
-        std::process::exit(1);
-    }
-
-    // - run scripts ------------------------------------------------
-    if args.report || args.both {
-        run_report(&marc_full_source_files_dir, &marc_full_output_files_dir);
-    }
-    if args.update || args.both {
-        run_daily_db_update();
-    }
-}
-
-// // using rayon ------------------------------------------------------
+/*
+for reference: using rayon ------------------------------------------
+*/
 // fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
 //     log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir);
 
