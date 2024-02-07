@@ -1,2 +1,4 @@
 pymarc==5.1.1
+pytest==8.0.0
 python-dotenv==1.0.0
+selenium==4.17.2
