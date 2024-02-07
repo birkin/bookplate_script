@@ -1,4 +1,4 @@
-import logging, pathlib, pprint, re, tarfile
+import logging, pathlib, os, pprint, re, tarfile
 from pathlib import Path
 
 import pymarc
@@ -29,49 +29,27 @@ def unpadded_sort_key( path: pathlib.Path ) -> int:
     return num
 
 
-## works but not needed
-# def make_output_path( compressed_f_pathobj: pathlib.Path, output_dir: pathlib.Path ) -> pathlib.Path:
-#     """ Returns the output path for the decompressed file. 
-#         Called by manager.run_report() """
-#     log.debug( f'compressed_f_pathobj, ``{compressed_f_pathobj}``' )
-#     log.debug( f'output_dir, ``{output_dir}``' )
-#     tar_stem: str = compressed_f_pathobj.stem  # drops the .gz but still has the .tar (i know I could these `str`s in Path() but am leaving explicit for now)
-#     tar_stem_pathobj = Path( tar_stem )
-#     real_stem: str = tar_stem_pathobj.stem  # drops the .tar
-#     real_stem_pathobj = Path( real_stem )
-#     output_path = output_dir / real_stem_pathobj.with_suffix('.xml')
-#     log.debug( f'output_path, ``{output_path}``' )
-#     return output_path
-
-
-# def decompress_file( source_path: pathlib.Path, output_path_dir: pathlib.Path ):
-#     """ Decompresses the file and saves it to the destination-path. 
-#         Called by manager.run_report() """
-#     log.debug( f'decompressing ``{source_path}`` to ``{output_path_dir}``' )
-#     with tarfile.open( source_path, 'r:gz' ) as tar:  # 'r' for read; 'gz' for gzip decompression
-#         tar.extractall( path=output_path_dir )
-#     return
-
 def decompress_file( source_path: pathlib.Path, output_path_dir: pathlib.Path ) -> Path:
     """ Decompresses the file and saves it to the destination-path. 
         Returns output_path.
         Called by manager.run_report() """
     log.debug( f'decompressing ``{source_path}`` to ``{output_path_dir}``' )
+    ## extract and save file ----------------------------------------
     with tarfile.open( source_path, 'r:gz' ) as tar:  # 'r' for read; 'gz' for gzip decompression
         tar.extractall( path=output_path_dir )
-
-    # Extract the base name of the file without its extension and append '.xml'
+    ## remove .tar.gz part of filename ------------------------------
     base_name = source_path.stem  # this removes the '.gz' part of 'foo.tar.gz' part
     log.debug( f'base_name 1, ``{base_name}``' )
     base_name = base_name.split( '.tar' )[0]  # This removes the '.tar' part
     log.debug( f'base_name 2, ``{base_name}``' )
+    ## add .xml -----------------------------------------------------
     output_file_name = f'{base_name}.xml'
     log.debug( f'output_file_name, ``{output_file_name}``' )
-    
-    # Construct the full output path
+    ## construct full output path -----------------------------------
     output_file_path = Path( output_path_dir / output_file_name )
     log.debug( f'output_path, ``{output_file_path}``' )
-    
+    ## update permissions --------------------------------------------
+    os.chmod( output_file_path, 0o664 )  # `0o664`` is the octal representation of `rw-rw-r--``
     return output_file_path
 
 
