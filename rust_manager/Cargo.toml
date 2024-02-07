@@ -15,4 +15,6 @@ flate2 = "1.0.28"
 log = "0.4.20"
 marc = "3.1.1"
 regex = " 1.10.3"
+serde = { version = "1.0.196", features = ["derive"] }
+serde-xml-rs = "0.6.0"
 tar = "0.4.40"
