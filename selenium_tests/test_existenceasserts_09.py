@@ -11,8 +11,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class TestExistenceasserts():
+  
+#   def setup_method(self, method):
+#     self.driver = webdriver.Firefox()
+#     self.vars = {}
+  
   def setup_method(self, method):
-    self.driver = webdriver.Firefox()
+    from selenium.webdriver.firefox.options import Options
+    options = Options()
+    options.add_argument('--headless')  # This line configures Firefox to run in headless mode.
+    self.driver = webdriver.Firefox(options=options)
     self.vars = {}
   
   def teardown_method(self, method):
