@@ -92,9 +92,10 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         let marc_records: marc_xml_reader::Collection = marc_xml_reader::load_records(output_path_str);
         log_debug!("marc_records.records length, ``{}``", marc_records.records.len());
 
-        /*
-        - for all marc-records, pull out title
-         */
+        // process records -----------------------
+        for record in marc_records.records.iter() {
+            marc_xml_reader::process_record(&record);
+        }
 
         //- delete file -------------------------
 

@@ -84,8 +84,9 @@ pub fn load_records(marc_xml_path: &str) -> Collection {
     return collection;
 }
 
-fn process_record(record: &RecordXml) {
+pub fn process_record(record: &RecordXml) {
     let title: String = parse_title(&record);
+    log_debug!("title, ``{}``", title);
 }
 
 fn parse_title(record: &RecordXml) -> String {
