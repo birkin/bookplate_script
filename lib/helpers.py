@@ -58,12 +58,13 @@ def process_marc_file( marc_file_path: pathlib.Path ) -> dict:
         Called by manager.run_report() """
     log.debug( f'processing marc file ``{marc_file_path}``' )
 
-    pymarc_records = []
+    # pymarc_records = []
     with open( marc_file_path, 'r') as fh:
         pymarc_records: list = pymarc.marcxml.parse_xml_to_array( fh )
         log.info( f'number of records in file, ``{len(pymarc_records)}``' )
 
     for record in pymarc_records:
+        ## see if the 
         title = record.title
         log.debug( f'title, ``{title}``' )
         
