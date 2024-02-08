@@ -54,26 +54,29 @@ struct SubField {
 // end of structs ---------------------------------------------------
 
 pub fn load_records(marc_xml_path: &str) -> Collection {
-    // -- Read the MARC XML file
-    // let file = File::open(marc_xml_path)?;
+    /*
+    Read the MARC XML file into a string, then deserialize it via serde-xml-rs, using the Collection struct.
+    */
+
+    //- open file -------------------------------
     let file = File::open(marc_xml_path).unwrap_or_else(|err| {
         panic!("could not open the marc_xml_path; error, ``{}``", err);
     });
-    let mut reader = BufReader::new(file);
 
+    //- read to string --------------------------
+    let mut reader = BufReader::new(file);
     let mut contents = String::new();
     // reader.read_to_string(&mut contents)?;
     reader.read_to_string(&mut contents).unwrap_or_else(|err| {
         panic!("could not read the file; error, ``{}``", err);
     });
-    // debug!("contents, ``{:?}``", contents);
 
-    // -- Deserialize the XML into a Collection
+    //- Deserialize XML to Collection -----------
     let collection: Collection = serde_xml_rs::from_str(&contents).unwrap_or_else(|err| {
         panic!("could not deserialize the marc_xml; error, ``{}``", err);
     });
 
-    // -- log the collection
+    //- log the collection ----------------------
     let collection_str = format!("{:?}", collection);
     let collection_substr_ellipses =
         format!("{}...", &collection_str[..collection_str.len().min(200)]);
