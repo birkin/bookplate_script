@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::BufReader;
+use std::io::Read;
+
 use serde::Deserialize;
 
 /*
@@ -5,13 +9,13 @@ Structs to represent MARC XML structure -----------------------------
 */
 
 #[derive(Debug, Deserialize)]
-struct Collection {
+pub struct Collection {
     #[serde(rename = "record", default)]
-    records: Vec<RecordXml>,
+    pub records: Vec<RecordXml>,
 }
 
 #[derive(Debug, Deserialize)]
-struct RecordXml {
+pub struct RecordXml {
     #[serde(rename = "controlfield", default)]
     controlfields: Vec<ControlField>,
     #[serde(rename = "datafield", default)]
@@ -49,6 +53,35 @@ struct SubField {
 
 // end of structs ---------------------------------------------------
 
+pub fn load_records(marc_xml_path: &str) -> Collection {
+    // -- Read the MARC XML file
+    // let file = File::open(marc_xml_path)?;
+    let file = File::open(marc_xml_path).unwrap_or_else(|err| {
+        panic!("could not open the marc_xml_path; error, ``{}``", err);
+    });
+    let mut reader = BufReader::new(file);
+
+    let mut contents = String::new();
+    // reader.read_to_string(&mut contents)?;
+    reader.read_to_string(&mut contents).unwrap_or_else(|err| {
+        panic!("could not read the file; error, ``{}``", err);
+    });
+    // debug!("contents, ``{:?}``", contents);
+
+    // -- Deserialize the XML into a Collection
+    let collection: Collection = serde_xml_rs::from_str(&contents).unwrap_or_else(|err| {
+        panic!("could not deserialize the marc_xml; error, ``{}``", err);
+    });
+
+    // -- log the collection
+    let collection_str = format!("{:?}", collection);
+    let collection_substr_ellipses =
+        format!("{}...", &collection_str[..collection_str.len().min(200)]);
+    log_debug!("collection (partial), ``{:?}``", collection_substr_ellipses);
+
+    return collection;
+}
+
 fn process_record(record: &RecordXml) {
     let title: String = parse_title(&record);
 }
@@ -81,7 +114,7 @@ mod tests {
 
     #[test]
     fn test_load_marc_xml_with_two_records() {
-        println!( "HELLO" );
+        println!("HELLO");
         let xml_data = r#"<collection xmlns="http://www.loc.gov/MARC21/slim">
             <record>
                 <leader>     nam a22     uu 4500</leader>
@@ -98,25 +131,26 @@ mod tests {
                 </datafield>
             </record>
         </collection>"#;
-    
+
         let marc_records: Collection = serde_xml_rs::from_str(&xml_data).unwrap_or_else(|err| {
             panic!("could not deserialize the marc_xml; error, ``{}``", err);
         });
-        
+
         // let mut rec: RecordXml = RecordXml {
         //     controlfields: vec![],
         //     datafields: vec![],
         // };
-        for record in marc_records.records.iter() {  // original syntax
+        for record in marc_records.records.iter() {
+            // original syntax
             let rec = process_record(record);
             println!("rec: ``{:?}``", rec);
             // let expected = "foo";
             // let result = parse_title(&rec);
             // assert_eq!( expected, result );
-            assert_eq!( 3, 3 );
+            assert_eq!(3, 3);
             break;
         }
-        
+
         assert_eq!(3, 3);
     }
 

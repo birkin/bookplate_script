@@ -90,6 +90,13 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         log_debug!("output_file: {:?}", &output_file);
 
         // read marc-xml file -------------------
+        let output_path_str: &str = output_file
+            .to_str()
+            .expect("Path contains invalid UTF-8 characters");
+        let marc_records: marc_xml_reader::Collection = marc_xml_reader::load_records(output_path_str);
+        // let zz: () = marc_records;
+        log_debug!("marc_records.records length, ``{}``", marc_records.records.len());
+
         /*
         - open file
         - create a list of marc-records
