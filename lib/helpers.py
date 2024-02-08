@@ -122,8 +122,31 @@ def save_bookplate_json( bookplate_data: dict, output_dir: pathlib.Path ) -> Non
     """ Saves the bookplate data as a json file. 
         Called by manager.run_report() """
     if bookplate_data:
-        jsn = json.dumps( bookplate_data, sort_keys=True )
-        output_filepath: pathlib.Path = output_dir / f'{bookplate_data["mms_id"]}.json'
+        data_to_save = bookplate_data
+        mms_id = bookplate_data['mms_id']
+        output_filepath: pathlib.Path = output_dir / f'{mms_id}.json'
+        log.debug( f'output_filepath, ``{output_filepath}``' )
+        ## handle existing data -------------------------------------
+        if output_filepath.exists():
+            log.warning( f'existing data found for mms_id, ``{mms_id}``' )
+            with open( output_filepath, 'r' ) as f:
+                existing_data = json.load( f )
+                ## if existing_data is a dict, add that dict to a list, then append the new data
+                if type( existing_data ) == dict:
+                    existing_data = [ existing_data ]
+                    existing_data.append( bookplate_data )
+                ## if existing_data is a list, append the new data
+                elif type( existing_data ) == list:
+                    existing_data.append( bookplate_data )
+                    data_to_save = existing_data
+                else:
+                    msg = f'uh-oh -- existing_data is not a dict or a list, ``{existing_data}``'
+                    log.exception( msg )
+                    raise Exception( msg )
+        else:
+            ## handle new data --------------------------------------
+            log.debug( 'new data' )
+        jsn = json.dumps( data_to_save, sort_keys=True )
         with open( output_filepath, 'w' ) as f:
             f.write( jsn )
     return
