@@ -78,8 +78,7 @@ pub fn load_records(marc_xml_path: &str) -> Collection {
 
     //- log the collection ----------------------
     let collection_str = format!("{:?}", collection);
-    let collection_substr_ellipses =
-        format!("{}...", &collection_str[..collection_str.len().min(200)]);
+    let collection_substr_ellipses = format!("{}...", &collection_str[..collection_str.len().min(200)]);
     log_debug!("collection (partial), ``{:?}``", collection_substr_ellipses);
 
     return collection;

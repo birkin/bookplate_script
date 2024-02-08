@@ -38,12 +38,12 @@ main ------------------------------------------------------------
 fn main() {
     // - load envars ------------------------------------------------
     dotenv().ok();
-    let _marc_daily_source_files_dir: String = env::var("MARC_DAILY_SOURCE_DIR")
-        .expect("MARC_DAILY_SOURCE_DIR envar could not be retrieved.");
-    let marc_full_source_files_dir: String = env::var("MARC_FULL_SOURCE_DIR")
-        .expect("MARC_FULL_SOURCE_DIR envar could not be retrieved.");
-    let marc_full_output_files_dir: String = env::var("MARC_FULL_OUTPUT_DIR")
-        .expect("MARC_FULL_OUTPUT_DIR envar could not be retrieved.");
+    let _marc_daily_source_files_dir: String =
+        env::var("MARC_DAILY_SOURCE_DIR").expect("MARC_DAILY_SOURCE_DIR envar could not be retrieved.");
+    let marc_full_source_files_dir: String =
+        env::var("MARC_FULL_SOURCE_DIR").expect("MARC_FULL_SOURCE_DIR envar could not be retrieved.");
+    let marc_full_output_files_dir: String =
+        env::var("MARC_FULL_OUTPUT_DIR").expect("MARC_FULL_OUTPUT_DIR envar could not be retrieved.");
 
     // - set up logger ----------------------------------------------
     logger::init_logger().expect("Unable to initialize logger");
@@ -76,45 +76,36 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
         helpers::grab_directory_files(&marc_full_source_files_dir);
 
     // get a sorted list ------------------------
-    let compressed_marc_files: Vec<std::path::PathBuf> =
-        helpers::sort_files(unsorted_compressed_marc_files);
+    let compressed_marc_files: Vec<std::path::PathBuf> = helpers::sort_files(unsorted_compressed_marc_files);
 
     // loop through list ------------------------
     for (i, file) in compressed_marc_files.iter().enumerate() {
         log_debug!("processing file: {:?}", file);
 
         // decompress & write file --------------
-        let output_file: std::path::PathBuf =
-            helpers::extract_tar_gz(&file, marc_full_output_files_dir)
-                .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
+        let output_file: std::path::PathBuf = helpers::extract_tar_gz(&file, marc_full_output_files_dir)
+            .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
         log_debug!("output_file: {:?}", &output_file);
 
         // read marc-xml file -------------------
         let output_path_str: &str = output_file
             .to_str()
             .expect("Path contains invalid UTF-8 characters");
-        let marc_records: marc_xml_reader::Collection =
-            marc_xml_reader::load_records(output_path_str);
-        log_debug!(
-            "marc_records.records length, ``{}``",
-            marc_records.records.len()
-        );
+        let marc_records: marc_xml_reader::Collection = marc_xml_reader::load_records(output_path_str);
+        log_debug!("marc_records.records length, ``{}``", marc_records.records.len());
 
         /*
         - for all marc-records, pull out title
          */
 
-        // delete file ---------------------------
+        //- delete file -------------------------
 
-        // Log progress for every fifth file, i starts at 0 so add 1 for human-readable count
+        //- og progress for every fifth file: i starts at 0 so add 1 for human-readable count
         if (i + 1) % 3 == 0 {
-            log_info!(
-                "Processed {} of {} files.",
-                i + 1,
-                compressed_marc_files.len()
-            );
+            log_info!("Processed {} of {} files.", i + 1, compressed_marc_files.len());
         }
 
+        //- temp: break after processing subset of files
         if i >= 4 {
             break; // break after processing subset of files
         }
