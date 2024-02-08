@@ -94,7 +94,8 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
 
         // process records -----------------------
         for record in marc_records.records.iter() {
-            marc_xml_reader::process_record(&record);
+            let foo = marc_xml_reader::process_record(&record);
+            log_debug!("foo, ``{:#?}``", foo);
         }
 
         //- delete file -------------------------

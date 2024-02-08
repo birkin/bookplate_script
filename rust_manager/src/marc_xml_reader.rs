@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
@@ -84,23 +85,60 @@ pub fn load_records(marc_xml_path: &str) -> Collection {
     return collection;
 }
 
-pub fn process_record(record: &RecordXml) {
+// pub fn process_record(record: &RecordXml) {
+//     let bookplate_996_u_info: String = parse_996_u(&record);
+//     // if the bookplate_996_u_info is not empty, then parse the 996_z field for the "purchased with fund" text
+//     if bookplate_996_u_info != "" {
+//         let bookplate_996_z_info: String = parse_996_z(&record);
+//         let mms_id: String = parse_alma_mmsid(&record);
+//         let title: String = parse_title(&record); // not needed for work, helps humans
+//         log_debug!(
+//             "title, ``{}``; mms_id, ``{}``; 996-u, ``{}``; 996-z, ``{}``",
+//             title,
+//             mms_id,
+//             bookplate_996_u_info,
+//             bookplate_996_z_info
+//         );
+//     } else {
+//         log_debug!("no bookplate info found");
+//     }
+// }
+
+pub fn process_record(record: &RecordXml) -> HashMap<String, String> {
+    /*
+    Extracts any bookplate info from the record.
+    Returns a HashMap with the following keys:
+    - bookplate_996_u_info
+    - bookplate_996_z_info
+    - mms_id
+    - title
+    */
     let bookplate_996_u_info: String = parse_996_u(&record);
-    // if the bookplate_996_u_info is not empty, then parse the 996_z field for the "purchased with fund" text
+    let mut data = HashMap::new();
+
     if bookplate_996_u_info != "" {
         let bookplate_996_z_info: String = parse_996_z(&record);
         let mms_id: String = parse_alma_mmsid(&record);
-        let title: String = parse_title(&record); // not needed for work, helps humans
-        log_debug!(
-            "title, ``{}``; mms_id, ``{}``; 996-u, ``{}``; 996-z, ``{}``",
-            title,
-            mms_id,
-            bookplate_996_u_info,
-            bookplate_996_z_info
-        );
+        let title: String = parse_title(&record); // Not needed for work, helps humans
+
+        // log_debug!(
+        //     "title, ``{}``; mms_id, ``{}``; 996-u, ``{}``; 996-z, ``{}``",
+        //     title,
+        //     mms_id,
+        //     bookplate_996_u_info,
+        //     bookplate_996_z_info
+        // );
+        log_debug!("bookplate info found");
+
+        data.insert("bookplate_996_u_info".to_string(), bookplate_996_u_info);
+        data.insert("bookplate_996_z_info".to_string(), bookplate_996_z_info);
+        data.insert("mms_id".to_string(), mms_id);
+        data.insert("title".to_string(), title);
     } else {
         log_debug!("no bookplate info found");
     }
+
+    data
 }
 
 fn parse_996_u(record: &RecordXml) -> String {
