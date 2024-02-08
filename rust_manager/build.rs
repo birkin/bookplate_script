@@ -6,10 +6,8 @@ use std::process::Command;
 
 fn main() {
     // Get the current git commit hash
-    let output = Command::new("git")
-        .args(&["rev-parse", "HEAD"])
-        .output()
-        .expect("Failed to execute git command");
+    let output =
+        Command::new("git").args(&["rev-parse", "HEAD"]).output().expect("Failed to execute git command");
 
     let git_hash = String::from_utf8_lossy(&output.stdout).trim().to_string();
     let version_string: String = format!("v{}", git_hash);
