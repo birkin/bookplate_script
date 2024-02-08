@@ -1,7 +1,8 @@
-// use std::collections::HashMap;
+use std::collections::BTreeMap;
+use std::env;
+
 use clap::{ArgAction, Parser};
 use dotenvy::dotenv;
-use std::env;
 
 #[macro_use]
 mod logger; // enables the log_debug!() and log_info!() macros; needs to be before the other modules that use it
@@ -94,8 +95,8 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
 
         // process records -----------------------
         for record in marc_records.records.iter() {
-            let foo = marc_xml_reader::process_record(&record);
-            log_debug!("foo, ``{:#?}``", foo);
+            let bookplate_info: BTreeMap<String, String> = marc_xml_reader::process_record(&record);
+            log_debug!("bookplate_info, ``{:#?}``", bookplate_info); // pretty-prints output
         }
 
         //- delete file -------------------------
