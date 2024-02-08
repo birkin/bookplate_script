@@ -12,29 +12,29 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class TestExistenceasserts():
   
-#   def setup_method(self, method):
-#     self.driver = webdriver.Firefox()
-#     self.vars = {}
+    def setup_method(self, method):
+        self.driver = webdriver.Firefox()
+        self.vars = {}
   
-  def setup_method(self, method):
-    from selenium.webdriver.firefox.options import Options
-    options = Options()
-    options.add_argument('--headless')  # This line configures Firefox to run in headless mode.
-    self.driver = webdriver.Firefox(options=options)
-    self.vars = {}
+    # def setup_method(self, method):
+    #     from selenium.webdriver.firefox.options import Options
+    #     options = Options()
+    #     options.add_argument('--headless')  # This line configures Firefox to run in headless mode.
+    #     self.driver = webdriver.Firefox(options=options)
+    #     self.vars = {}
   
-  def teardown_method(self, method):
-    self.driver.quit()
+    def teardown_method(self, method):
+        self.driver.quit()
   
-  def test_existenceasserts(self):
-    self.driver.get("https://bruknow.library.brown.edu/discovery/fulldisplay?context=L&vid=01BU_INST:BROWN&search_scope=MyInst_and_CI&tab=Everything&docid=alma991003874639706966")
-    WebDriverWait(self.driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, "//span[contains(.,\'Bookplate\')]")))
-    self.driver.set_window_size(1257, 834)
-    self.driver.execute_script("window.scrollTo(0,1795)")
-    elements = self.driver.find_elements(By.XPATH, "//span[contains(.,\'Bookplate\')]")
-    assert len(elements) > 0
-    elements = self.driver.find_elements(By.CSS_SELECTOR, "div > prm-highlight .bul_pl_primo_bookplate_image")
-    assert len(elements) > 0
-    elements = self.driver.find_elements(By.PARTIAL_LINK_TEXT, "Purchased with ")
-    assert len(elements) > 0
+    def test_existenceasserts(self):
+        self.driver.get("https://bruknow.library.brown.edu/discovery/fulldisplay?context=L&vid=01BU_INST:BROWN&search_scope=MyInst_and_CI&tab=Everything&docid=alma991003874639706966")
+        WebDriverWait(self.driver, 30).until(expected_conditions.visibility_of_element_located((By.XPATH, "//span[contains(.,\'Bookplate\')]")))
+        # self.driver.set_window_size(1257, 834)
+        # self.driver.execute_script("window.scrollTo(0,1795)")
+        elements = self.driver.find_elements(By.XPATH, "//span[contains(.,\'Bookplate\')]")
+        assert len(elements) > 0
+        elements = self.driver.find_elements(By.CSS_SELECTOR, "div > prm-highlight .bul_pl_primo_bookplate_image")
+        assert len(elements) > 0
+        elements = self.driver.find_elements(By.PARTIAL_LINK_TEXT, "Purchased with ")
+        assert len(elements) > 0
   
