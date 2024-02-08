@@ -3,6 +3,7 @@ import argparse, logging, os, pathlib, pprint
 from pathlib import Path
 
 ## 3rd party
+import pymarc
 from dotenv import load_dotenv, find_dotenv
 
 ## local
@@ -41,8 +42,17 @@ def run_report():
         log.debug( f'processing file ``{compressed_f_pathobj}``')
         ## extract the .tar.gz files --------------------------------
         output_filepath: Path = helpers.decompress_file( compressed_f_pathobj, MARC_FULL_OUTPUT_DIR )
-        ## process the marc_xml data-file ---------------------------
-        bookplate_data: dict = helpers.process_marc_file( output_filepath )
+        ## read marc-xml file ---------------------------------------
+        pymarc_records: list = helpers.read_marc_file( output_filepath )
+        assert type( pymarc_records[0] ) == pymarc.record.Record, type( pymarc_records[0] )
+        ## process records ---------------------------
+        for rcrd in pymarc_records:
+            pymarc_record: pymarc.record.Record = rcrd
+            bookplate_data: dict = helpers.process_pymarc_record( pymarc_record )
+
+        ## delete the marc_xml data-file ----------------------------
+        # TODO
+
         total_files = len(compressed_marc_files)
         if (i + 1) % 3 == 0 or i == total_files - 1:  # After every 10 files or the last file
             log.info(f'Processed {i + 1} of {total_files} files.')

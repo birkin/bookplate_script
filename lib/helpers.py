@@ -52,22 +52,67 @@ def decompress_file( source_path: pathlib.Path, output_path_dir: pathlib.Path ) 
     os.chmod( output_file_path, 0o664 )  # `0o664`` is the octal representation of `rw-rw-r--``
     return output_file_path
 
-
-def process_marc_file( marc_file_path: pathlib.Path ) -> dict:
-    """ Processes the marc file and returns the data. 
+def read_marc_file( marc_file_path: pathlib.Path ) -> list:
+    """ Reads the marc file and returns the data. 
         Called by manager.run_report() """
-    log.debug( f'processing marc file ``{marc_file_path}``' )
-
-    # pymarc_records = []
+    log.debug( f'reading marc file ``{marc_file_path}``' )
     with open( marc_file_path, 'r') as fh:
-        pymarc_records: list = pymarc.marcxml.parse_xml_to_array( fh )
-        log.info( f'number of records in file, ``{len(pymarc_records)}``' )
+        pymarc_records = pymarc.marcxml.parse_xml_to_array( fh )
+    log.debug( f'number of records in file, ``{len(pymarc_records)}``' )
+    return pymarc_records
 
-    for record in pymarc_records:
-        ## see if the 
-        title = record.title
-        log.debug( f'title, ``{title}``' )
-        
+
+def process_pymarc_record( pymarc_record: pymarc.record.Record ) -> dict:
+    """ Processes the record and returns bookplate-data, if any. 
+        Called by manager.run_report() """
     bookplate_data = {}
+    bookplate_996_u_info: str = parse_996_u( pymarc_record );
+    if bookplate_996_u_info:
+        log.debug( 'bookplate data found' )
+        bookplate_996_z_info = parse_996_z( pymarc_record )
+        mms_id: str = parse_mms_id( pymarc_record )
+        title = pymarc_record.title
+        bookplate_data = { 
+            'bookplate_996_u_info': bookplate_996_u_info,
+            'bookplate_996_z_info': bookplate_996_z_info,
+            'mms_id': mms_id,
+            'title': title 
+            }
+    else:
+        log.debug( 'no bookplate data found' )
     log.debug( f'bookplate_data, ``{pprint.pformat(bookplate_data)}``' )
     return bookplate_data
+
+
+def parse_996_u( pymarc_record: pymarc.record.Record ) -> str:
+    """ Parses the 996 field and returns the u-value, if any. 
+        Called by process_pymarc_record() """
+    field_996_u = ''
+    try:
+        field_996 = pymarc_record.get_fields('996')[0]
+        field_996_u = field_996.get_subfields('u')[0]
+    except:
+        pass
+    log.debug( f'field_996_u, ``{field_996_u}``' )
+    return field_996_u
+
+
+def parse_996_z( pymarc_record: pymarc.record.Record ) -> str:
+    """ Parses the 996 field and returns the z-value, if any. 
+        Called by process_pymarc_record() """
+    field_996_z = ''
+    try:
+        field_996 = pymarc_record.get_fields('996')[0]
+        field_996_z = field_996.get_subfields('z')[0]
+    except:
+        pass
+    log.debug( f'field_996_z, ``{field_996_z}``' )
+    return field_996_z
+
+
+def parse_mms_id( pymarc_record: pymarc.record.Record ) -> str:
+    """ Parses the 001 field and returns the mms_id. 
+        Called by process_pymarc_record() """
+    mms_id = pymarc_record['001'].data
+    log.debug( f'mms_id, ``{mms_id}``' )
+    return mms_id
