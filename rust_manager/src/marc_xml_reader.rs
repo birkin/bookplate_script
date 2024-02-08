@@ -86,14 +86,25 @@ pub fn load_records(marc_xml_path: &str) -> Collection {
 
 pub fn process_record(record: &RecordXml) {
     let bookplate_996_u_info: String = parse_996_u(&record);
-    // let mms_id: String = parse_alma_mmsid(&record);
-    // let title: String = parse_title(&record);  // not needed for work, helps humans
-    // log_debug!("title, ``{}``; mms_id, ``{}``", title, mms_id);
-    log_debug!("bookplate_996_u_info, ``{}``", bookplate_996_u_info);
+    // if the bookplate_996_u_info is not empty, then parse the 996_z field for the "purchased with fund" text
+    if bookplate_996_u_info != "" {
+        let bookplate_996_z_info: String = parse_996_z(&record);
+        let mms_id: String = parse_alma_mmsid(&record);
+        let title: String = parse_title(&record); // not needed for work, helps humans
+        log_debug!(
+            "title, ``{}``; mms_id, ``{}``; 996-u, ``{}``; 996-z, ``{}``",
+            title,
+            mms_id,
+            bookplate_996_u_info,
+            bookplate_996_z_info
+        );
+    } else {
+        log_debug!("no bookplate info found");
+    }
 }
 
 fn parse_996_u(record: &RecordXml) -> String {
-    /* 
+    /*
     Checks 996-u for bookplate text and returns it if found.
     If not found, returns empty string.
     */
@@ -111,6 +122,24 @@ fn parse_996_u(record: &RecordXml) -> String {
         }
     }
     the_996_u
+}
+
+fn parse_996_z(record: &RecordXml) -> String {
+    /*
+    Thus function is only called when the previous `parse_996_u()` function has found bookplate info.
+    Grabs the 996-z for "purchased with fund" text.
+    */
+    let mut the_996_z = String::new();
+    for datafield in &record.datafields {
+        if datafield.tag == "996" {
+            for subfield in &datafield.subfields {
+                if subfield.code == "z" {
+                    the_996_z = subfield.value.clone().unwrap_or_else(|| "".to_string());
+                }
+            }
+        }
+    }
+    the_996_z
 }
 
 fn parse_alma_mmsid(record: &RecordXml) -> String {
