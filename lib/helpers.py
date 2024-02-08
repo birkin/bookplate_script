@@ -1,4 +1,4 @@
-import logging, pathlib, os, pprint, re, tarfile
+import json, logging, pathlib, os, pprint, re, tarfile
 from pathlib import Path
 
 import pymarc
@@ -116,3 +116,14 @@ def parse_mms_id( pymarc_record: pymarc.record.Record ) -> str:
     mms_id = pymarc_record['001'].data
     log.debug( f'mms_id, ``{mms_id}``' )
     return mms_id
+
+
+def save_bookplate_json( bookplate_data: dict, output_dir: pathlib.Path ) -> None:
+    """ Saves the bookplate data as a json file. 
+        Called by manager.run_report() """
+    if bookplate_data:
+        jsn = json.dumps( bookplate_data, sort_keys=True )
+        output_filepath: pathlib.Path = output_dir / f'{bookplate_data["mms_id"]}.json'
+        with open( output_filepath, 'w' ) as f:
+            f.write( jsn )
+    return
