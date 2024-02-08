@@ -49,6 +49,7 @@ def run_report():
         for rcrd in pymarc_records:
             pymarc_record: pymarc.record.Record = rcrd
             bookplate_data: dict = helpers.process_pymarc_record( pymarc_record )
+            bookplate_data: dict = helpers.check_bruknow( bookplate_data )
             helpers.save_bookplate_json( bookplate_data, MARC_FULL_OUTPUT_DIR )
 
         ## delete the marc_xml data-file ----------------------------

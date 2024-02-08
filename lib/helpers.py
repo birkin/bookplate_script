@@ -2,6 +2,13 @@ import json, logging, pathlib, os, pprint, re, tarfile
 from pathlib import Path
 
 import pymarc
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 log = logging.getLogger( __name__ )  # configured in manager.py
@@ -118,6 +125,34 @@ def parse_mms_id( pymarc_record: pymarc.record.Record ) -> str:
     return mms_id
 
 
+def check_bruknow( bookplate_data: dict ) -> dict:
+    """ Checks BruKnow to see if the bookplate exists, and updates bookplate_data with result.
+        Called by manager.run_report() """
+    url_pattern = 'https://bruknow.library.brown.edu/discovery/fulldisplay?docid=alma{MMS_ID_HERE}&context=L&vid=01BU_INST:BROWN&lang=en'
+    url = url_pattern.format( MMS_ID_HERE=bookplate_data['mms_id'] )
+    log.debug( f'url, ``{url}``' )
+    try:
+        driver = webdriver.Firefox()
+        driver.get( url )
+        WebDriverWait( driver, 30).until(expected_conditions.visibility_of_element_located((By.XPATH, "//span[contains(.,\'Bookplate\')]")))
+        elements = driver.find_elements(By.XPATH, "//span[contains(.,\'Bookplate\')]")
+        assert len(elements) > 0
+        elements = driver.find_elements(By.CSS_SELECTOR, "div > prm-highlight .bul_pl_primo_bookplate_image")
+        assert len(elements) > 0
+        elements = driver.find_elements(By.PARTIAL_LINK_TEXT, "Purchased with ")
+        assert len(elements) > 0
+        msg = f'bookplate found at, ``{url}``'
+    except Exception as e:
+        msg = f'problem with BruKnow check, ``{e}``'
+        log.exception( msg )
+    bookplate_data['bruknow_check'] = msg
+    return bookplate_data
+
+
+
+
+
+
 def save_bookplate_json( bookplate_data: dict, output_dir: pathlib.Path ) -> None:
     """ Saves the bookplate data as a json file. 
         Called by manager.run_report() """
@@ -146,7 +181,8 @@ def save_bookplate_json( bookplate_data: dict, output_dir: pathlib.Path ) -> Non
         else:
             ## handle new data --------------------------------------
             log.debug( 'new data' )
-        jsn = json.dumps( data_to_save, sort_keys=True )
+        # jsn = json.dumps( data_to_save, sort_keys=True )
+        jsn = json.dumps( data_to_save, sort_keys=True, indent=2 )
         with open( output_filepath, 'w' ) as f:
             f.write( jsn )
     return
