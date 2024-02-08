@@ -85,8 +85,42 @@ pub fn load_records(marc_xml_path: &str) -> Collection {
 }
 
 pub fn process_record(record: &RecordXml) {
-    let title: String = parse_title(&record);
-    log_debug!("title, ``{}``", title);
+    let bookplate_996_u_info: String = parse_996_u(&record);
+    // let mms_id: String = parse_alma_mmsid(&record);
+    // let title: String = parse_title(&record);  // not needed for work, helps humans
+    // log_debug!("title, ``{}``; mms_id, ``{}``", title, mms_id);
+    log_debug!("bookplate_996_u_info, ``{}``", bookplate_996_u_info);
+}
+
+fn parse_996_u(record: &RecordXml) -> String {
+    /* 
+    Checks 996-u for bookplate text and returns it if found.
+    If not found, returns empty string.
+    */
+    let mut the_996_u = String::new();
+    for datafield in &record.datafields {
+        if datafield.tag == "996" {
+            for subfield in &datafield.subfields {
+                if subfield.code == "u" {
+                    let subfield_text = subfield.value.clone().unwrap_or_else(|| "".to_string());
+                    if subfield_text.to_lowercase().contains("bookplate") {
+                        the_996_u = subfield_text;
+                    }
+                }
+            }
+        }
+    }
+    the_996_u
+}
+
+fn parse_alma_mmsid(record: &RecordXml) -> String {
+    let mut alma_mmsid = String::new();
+    for controlfield in &record.controlfields {
+        if controlfield.tag == "001" {
+            alma_mmsid = controlfield.value.clone().unwrap_or_else(|| "".to_string());
+        }
+    }
+    alma_mmsid
 }
 
 fn parse_title(record: &RecordXml) -> String {
@@ -107,60 +141,18 @@ fn parse_title(record: &RecordXml) -> String {
 /*
 Dummy function for testing ------------------------------------------
 */
-fn add_nums(a: i32, b: i32) -> i32 {
-    a + b
-}
+// fn add_nums(a: i32, b: i32) -> i32 {
+//     a + b
+// }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[test]
-    fn test_load_marc_xml_with_two_records() {
-        println!("HELLO");
-        let xml_data = r#"<collection xmlns="http://www.loc.gov/MARC21/slim">
-            <record>
-                <leader>     nam a22     uu 4500</leader>
-                <controlfield tag="008">210101s2024    xx            eng d</controlfield>
-                <datafield tag="245" ind1="0" ind2="0">
-                    <subfield code="a">First Title</subfield>
-                </datafield>
-            </record>
-            <record>
-                <leader>     nam a22     uu 4500</leader>
-                <controlfield tag="008">210101s2024    xx            eng d</controlfield>
-                <datafield tag="245" ind1="0" ind2="0">
-                    <subfield code="a">Second Title</subfield>
-                </datafield>
-            </record>
-        </collection>"#;
-
-        let marc_records: Collection = serde_xml_rs::from_str(&xml_data).unwrap_or_else(|err| {
-            panic!("could not deserialize the marc_xml; error, ``{}``", err);
-        });
-
-        // let mut rec: RecordXml = RecordXml {
-        //     controlfields: vec![],
-        //     datafields: vec![],
-        // };
-        for record in marc_records.records.iter() {
-            // original syntax
-            let rec = process_record(record);
-            println!("rec: ``{:?}``", rec);
-            // let expected = "foo";
-            // let result = parse_title(&rec);
-            // assert_eq!( expected, result );
-            assert_eq!(3, 3);
-            break;
-        }
-
-        assert_eq!(3, 3);
-    }
-
-    #[test]
-    fn test_add_nums() {
-        let expected = 3;
-        let result = add_nums(1, 2);
-        assert_eq!(result, expected);
-    }
-}
+//     #[test]
+//     fn test_add_nums() {
+//         let expected = 3;
+//         let result = add_nums(1, 2);
+//         assert_eq!(result, expected);
+//     }
+// }
