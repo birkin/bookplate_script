@@ -1,1 +1,7 @@
+## explanations: <https://github.com/rust-lang/rustfmt/blob/master/Configurations.md>
+
 max_width = 110
+
+brace_style = "PreferSameLine"
+
+imports_granularity = "Module"
