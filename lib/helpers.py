@@ -126,7 +126,7 @@ def parse_mms_id( pymarc_record: pymarc.record.Record ) -> str:
 
 
 def check_bruknow( bookplate_data: dict ) -> dict:
-    """ Checks BruKnow to see if the bookplate exists, and updates bookplate_data with result.
+    """ Checks BruKnow via Selenium to see if the bookplate exists, and updates bookplate_data with result.
         Called by manager.run_report() """
     if bookplate_data:
         url_pattern = 'https://bruknow.library.brown.edu/discovery/fulldisplay?docid=alma{MMS_ID_HERE}&context=L&vid=01BU_INST:BROWN&lang=en'

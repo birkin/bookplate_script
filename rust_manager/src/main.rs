@@ -95,8 +95,9 @@ fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str
 
         // process records -----------------------
         for record in marc_records.records.iter() {
-            let bookplate_info: BTreeMap<String, String> = marc_xml_reader::process_record(&record);
-            log_debug!("bookplate_info, ``{:#?}``", bookplate_info); // pretty-prints output
+            let bookplate_data: BTreeMap<String, String> = marc_xml_reader::process_record(&record);
+            let bookplate_data: BTreeMap<String, String> = marc_xml_reader::check_bruknow(&record);
+            log_debug!("bookplate_data, ``{:#?}``", bookplate_data); // pretty-prints output
         }
 
         //- delete file -------------------------
