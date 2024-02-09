@@ -34,7 +34,7 @@ struct Args {
 } // end argument-handling ------------------------------------------
 
 /*
-main ------------------------------------------------------------
+main ----------------------------------------------------------------
 */
 fn main() {
     // - load envars ------------------------------------------------
@@ -50,7 +50,7 @@ fn main() {
     logger::init_logger().expect("Unable to initialize logger");
     log_debug!("logging configured.");
 
-    // - parse args --------------------------------------------------
+    // - parse args -------------------------------------------------
     let args = Args::parse();
     if !args.report && !args.update && !args.both {
         println!("Please provide either the --update, --report, or --both argument.");
@@ -72,35 +72,37 @@ manage report-run ---------------------------------------------------
 fn run_report(marc_full_source_files_dir: &str, marc_full_output_files_dir: &str) {
     log_debug!("marc_full_output_files_dir: {}", marc_full_output_files_dir); // temp; to eliminate cargo warning
 
-    // list the .tar.gz files -------------------
+    //- list the .tar.gz files ----------------------------
     let unsorted_compressed_marc_files: Vec<std::path::PathBuf> =
         helpers::grab_directory_files(&marc_full_source_files_dir);
 
-    // get a sorted list ------------------------
+    //- get a sorted list ---------------------------------
     let compressed_marc_files: Vec<std::path::PathBuf> = helpers::sort_files(unsorted_compressed_marc_files);
 
-    // loop through list ------------------------
+    //- loop through list ---------------------------------
     for (i, file) in compressed_marc_files.iter().enumerate() {
         log_debug!("processing file: {:?}", file);
 
-        // decompress & write file --------------
+        //- decompress & write file -----------------------
         let output_file: std::path::PathBuf = helpers::extract_tar_gz(&file, marc_full_output_files_dir)
             .unwrap_or_else(|_| panic!("Problem extracting file: {:?}", file.display())); // possible TODO: log and/or email error, but continue processing.
         log_debug!("output_file: {:?}", &output_file);
 
-        // read marc-xml file -------------------
+        //- read marc-xml file ----------------------------
         let output_path_str: &str = output_file.to_str().expect("Path contains invalid UTF-8 characters");
         let marc_records: marc_xml_reader::Collection = marc_xml_reader::load_records(output_path_str);
         log_debug!("marc_records.records length, ``{}``", marc_records.records.len());
 
-        // process records -----------------------
+        //- process records -------------------------------
         for record in marc_records.records.iter() {
+            //- get bookplate hash ------------------------
             let bookplate_data: BTreeMap<String, String> = marc_xml_reader::process_record(&record);
-            let bookplate_data: BTreeMap<String, String> = marc_xml_reader::check_bruknow(&record);
             log_debug!("bookplate_data, ``{:#?}``", bookplate_data); // pretty-prints output
+                                                                     //- check bruknow -----------------------------
+                                                                     // let bookplate_data: BTreeMap<String, String> = helpers::check_bruknow(&record);
         }
 
-        //- delete file -------------------------
+        //- delete file -----------------------------------
 
         //- og progress for every fifth file: i starts at 0 so add 1 for human-readable count
         if (i + 1) % 3 == 0 {
