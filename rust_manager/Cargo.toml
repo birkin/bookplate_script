@@ -1,11 +1,12 @@
+## See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [package]
 name = "bookplate_script_runner"
 version = "0.1.0"
 edition = "2021"
 
+## build-script to enable github version to display with --version arg
 build = "build.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.31"
