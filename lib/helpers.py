@@ -1,4 +1,4 @@
-import json, logging, pathlib, os, pprint, re, tarfile
+import datetime, json, logging, pathlib, os, pprint, re, tarfile, time
 from pathlib import Path
 
 import pymarc
@@ -12,6 +12,31 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 log = logging.getLogger( __name__ )  # configured in manager.py
+
+
+def init_tracker() -> dict:
+    """ Initializes the tracker and returns it. 
+        Called by manager.run_report() """
+    start_time = datetime.datetime.now()
+    start_elapsed = time.time()
+    tracker = { 
+        'start_time': start_time.isoformat(), 
+        'start_elapsed': start_elapsed,  # will be removed at end
+        'step_01': { 
+            'label': 'list the .tar.gz files',  
+            'count_targz_files': None,
+            'elapsed_time': None },
+        'step_02': {
+            'label': 'extract bookplate data',
+            'count_all_marc_records': None,
+            'count_records_with_bookplate_data': None,
+            'extacted_bookplate_data': {},
+            'elapsed_time': None,
+        },
+        'elapsed_total_time': None 
+        }
+    log.debug( f'tracker, ``{pprint.pformat(tracker)}``' )
+    return tracker
 
 
 def sort_unpadded_filenames( unsorted_filenames: list ) -> list:
@@ -123,6 +148,17 @@ def parse_mms_id( pymarc_record: pymarc.record.Record ) -> str:
     mms_id = pymarc_record['001'].data
     log.debug( f'mms_id, ``{mms_id}``' )
     return mms_id
+
+
+def save_tracker( tracker: dict, output_filepath: pathlib.Path ) -> None:
+    """ Saves the tracker as a json file. 
+        Called by manager.run_report() """
+    data_to_save = tracker
+    log.debug( f'output_filepath, ``{output_filepath}``' )
+    jsn = json.dumps( data_to_save, sort_keys=True, indent=2 )
+    with open( output_filepath, 'w' ) as f:
+        f.write( jsn )
+    return
 
 
 def check_bruknow( bookplate_data: dict ) -> dict:
