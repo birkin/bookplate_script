@@ -58,8 +58,24 @@ This [BruKnow webpage] for "Nostalgia : a novel", by Mircea Cărtărescu, shows 
 The MARC-record for this item is below.
 
 It shows three elements that contain bookplate info:
-- 996, subfields "u" and "z"
-- 876, subfield "r"
+- 996, subfields "u" and "z" -- only field relevant for bookplate-display
+- 876, subfield "r" -- not relevant for bookplate-display
+- there is also sometimes some bookplate info in the 945 field (not currently exported) -- not relevant for bookplate-display
+
+So the initial script flow...
+
+- From the daily "changes" MARC export, look for any records that contain bookplate info. 
+    - Note: the changes causing these records to appear will most often not have anything to do with bookplates. 
+
+For each record that contains bookplate info:
+
+- See if the book-plate is already displaying in BruKnow. If so, move on to the next record. If not...
+
+- Check the MySQL bookplate database to see if the expected data is in the relevant table.
+    - If the expected data _is_ in the database, log this curiosity with a warning.
+    - If the expected data is _not_ in the database, insert it, pause, and recheck BruKnow 
+
+- Finally, email the relevant people any anomolies.
 
 [BruKnow webpage]: <https://bruknow.library.brown.edu/permalink/01BU_INST/9mvq88/alma991003874639706966>
 
